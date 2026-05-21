@@ -13,7 +13,15 @@ public class UserRepository implements PanacheMongoRepository<User> {
         return find("username", username).firstResultOptional();
     }
     
+    public Optional<User> findByEmail(String email) {
+        return find("email", email).firstResultOptional();
+    }
+    
     public boolean existsByUsername(String username) {
         return findByUsername(username).isPresent();
+    }
+    
+    public boolean existsByEmail(String email) {
+        return findByEmail(email).isPresent();
     }
 }
