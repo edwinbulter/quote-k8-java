@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quote-api-jvm
+  namespace: quote-k8-java
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quote-api
+      mode: jvm
+  template:
+    metadata:
+      labels:
+        app: quote-api
+        mode: jvm
+    spec:
+      containers:
+        - name: quote-api
+          image: quote-api:latest-jvm
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"

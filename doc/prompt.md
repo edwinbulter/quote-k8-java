@@ -1,0 +1,10 @@
+
+Describe in a markdown document how to create a base K8 project that can be deployed on any Cloud Provider that supports K8. The requirements are:
+- use the already locally running Kind K8 cluster for running the application (context=kind-multi-node-cluster)
+- use the new namespace quote-k8-java for the application
+- create the API in Java Quarkus
+- Database: MongoDB with MongoDB Operator
+- Run local with Quarkus JVM in Kind K8
+- Run in the cloud with Quarkus Native (GraalVM)
+- As a start, make the endpoint GET {{baseUrl}}/api/quotes/random work by migrating the exact functionality from doc/quote-azure-k8-backend to the new project. This endpoint fetches data from ZenQuotes when the database is empty and stores it in the database, or returns a random quote from the database.
+

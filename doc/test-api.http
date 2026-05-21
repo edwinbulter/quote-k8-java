@@ -1,0 +1,292 @@
+### JWT Authentication Testing
+
+### Environment variables needed in http-client.env.json:
+### {
+###   "dev": {
+###     "baseUrl": "http://localhost:5000",
+###     "user_email": "user@example.com",
+###     "user_password": "User123!",
+###     "admin_email": "admin@quote-backend.local",
+###     "admin_password": "Admin123!"
+###   }
+### }
+
+### 0.0 Seed users (run once to create admin and test users)
+POST {{baseUrl}}/api/seed-users
+Content-Type: application/json
+
+### 0.1 Register user (for testing)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user-b@outlook.com",
+  "username": "user-b",
+  "password": "Hello-user-b",
+  "confirmPassword": "Hello-user-b"
+}
+
+### 0.2 Login to get JWT token (using email)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "loginIdentifier": "user-1@outlook.com",
+  "password": "Hello-user-1"
+}
+
+> {%
+    // The response body is already a parsed object, not a JSON string
+    console.log("Response body type:", typeof response.body);
+    
+    if (typeof response.body === 'object' && response.body.token) {
+        client.global.set("authToken", response.body.token);
+        console.log("Token set successfully: " + response.body.token.substring(0, 20) + "...");
+    } else {
+        console.log("Token not found in response object");
+        console.log("Response body:", response.body);
+    }
+%}
+
+### 0.2b Login to get JWT token (using username)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "loginIdentifier": "{{username-user}}",
+  "password": "{{password-user}}"
+}
+
+> {%
+    const responseBody = JSON.parse(response.body);
+    client.global.set("authToken", responseBody.token);
+%}
+
+### 0.3 Login as admin to get admin JWT token
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "loginIdentifier": "{{username-admin}}",
+  "password": "{{password-admin}}"
+}
+
+> {%
+    // The response body is already a parsed object, not a JSON string
+    console.log("Response body type:", typeof response.body);
+
+    if (typeof response.body === 'object' && response.body.token) {
+        client.global.set("authToken", response.body.token);
+        console.log("Token set successfully: " + response.body.token.substring(0, 20) + "...");
+    } else {
+        console.log("Token not found in response object");
+        console.log("Response body:", response.body);
+    }
+%}
+
+### ============================================
+### PUBLIC ENDPOINTS (No authentication required)
+### ============================================
+
+### 1. GET Random Quote (unauthenticated - no view recording)
+GET {{baseUrl}}/api/quotes/random
+
+### 2. POST Quote with exclusions (unauthenticated)
+POST {{baseUrl}}/api/quote
+Content-Type: application/json
+
+[
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+  11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+  31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+  41, 42, 43, 44, 45, 46, 47, 48, 49, 50
+]
+
+### 3. Get All Liked Quotes (public endpoint)
+GET {{baseUrl}}/api/quote/liked
+Authorization: Bearer {{authToken}}
+
+### ============================================
+### AUTHENTICATED ENDPOINTS
+### ============================================
+
+### 4. GET Quote with authentication (stores LastQuoteId in userprogress)
+GET {{baseUrl}}/api/quote
+Authorization: Bearer {{authToken}}
+
+### 5. GET View History (authenticated)
+GET {{baseUrl}}/api/quote/viewed
+Authorization: Bearer {{authToken}}
+
+### 6. GET Progress (authenticated)
+GET {{baseUrl}}/api/quote/progress
+Authorization: Bearer {{authToken}}
+
+### ============================================
+### LIKE/UNLIKE ENDPOINTS
+### ============================================
+
+### 8. Like Quote
+POST {{baseUrl}}/api/quote/2/like
+Authorization: Bearer {{authToken}}
+
+### 9. Unlike Quote
+DELETE {{baseUrl}}/api/quote/2/unlike
+Authorization: Bearer {{authToken}}
+
+### 10. Get All Liked Quotes
+GET {{baseUrl}}/api/quote/liked
+Authorization: Bearer {{authToken}}
+
+### 11. GET View History for user
+GET {{baseUrl}}/api/quote/viewed
+Authorization: Bearer {{authToken}}
+
+### ============================================
+### ERROR TESTING
+### ============================================
+
+### 12. GET View History without token (should return 401)
+GET {{baseUrl}}/api/quote/viewed
+
+### 13. Like Quote without token (should return 401)
+POST {{baseUrl}}/api/quote/1/like
+Content-Type: application/json
+
+### 14. Unlike Quote without token (should return 401)
+DELETE {{baseUrl}}/api/quote/1/unlike
+
+### 15. Get All Liked Quotes without token (should return 401)
+GET {{baseUrl}}/api/quote/liked
+
+### ============================================
+### REORDER LIKED QUOTES
+### ============================================
+### 16. Get All Liked Quotes
+GET {{baseUrl}}/api/quote/liked
+Authorization: Bearer {{authToken}}
+
+### 17. Move Quote ID 3 to position 1
+PUT {{baseUrl}}/api/quote/3/reorder
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "newPosition": 1
+}
+
+### ============================================
+### MANAGEMENT ENDPOINTS (Admin only)
+### ============================================
+
+### 20. Get all users (admin only)
+GET {{baseUrl}}/api/manage/users
+Authorization: Bearer {{authToken}}
+
+### 21. GET quotes
+GET {{baseUrl}}/api/manage/quotes?page=2&pageSize=50&sortBy=id&sortOrder=asc
+Authorization: Bearer {{authToken}}
+
+### 22. FETCH quotes (adds quotes to database)
+POST {{baseUrl}}/api/manage/quotes/fetch
+Authorization: Bearer {{authToken}}
+
+### 23. Get stats (total likes)
+GET {{baseUrl}}/api/manage/stats
+Authorization: Bearer {{authToken}}
+
+### 24. Update user role (admin only)
+PUT {{baseUrl}}/api/manage/users/role
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "username": "user-b",
+  "role": "User"
+}
+
+### 25. Remove user role (admin only)
+DELETE {{baseUrl}}/api/manage/users/role
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "username": "user-b",
+  "role": "Admin"
+}
+
+### 26. Remove user, delete account and all data (admin only)
+DELETE {{baseUrl}}/api/manage/users/account
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "username": "user-a"
+}
+
+### ============================================
+### PASSWORD MANAGEMENT
+### ============================================
+### 30 Register user (for testing)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user-a@outlook.com",
+  "username": "user-a",
+  "password": "Hello-user-a",
+  "confirmPassword": "Hello-user-a"
+}
+
+### 31 Login to get JWT token
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "loginIdentifier": "user-a",
+  "password": "Hello-user-a"
+}
+
+> {%
+    const responseBody = JSON.parse(response.body);
+    client.global.set("authToken", responseBody.token);
+%}
+
+### 32. Change password
+POST {{baseUrl}}/api/auth/change-password
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "Hello-user-a",
+  "newPassword": "NewUser123!",
+  "confirmNewPassword": "NewUser123!"
+}
+
+### 33. Unregister user (delete account and all data)
+DELETE {{baseUrl}}/api/auth/unregister
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "password": "NewUser123!"
+}
+
+### ============================================
+### ERROR TESTING - ADMIN ENDPOINTS
+### ============================================
+
+### 24. Get all users with regular user token (should return 403)
+GET {{baseUrl}}/api/manage/users
+Authorization: Bearer {{authToken}}
+
+### 25. Update user role with regular user token (should return 403)
+PUT {{baseUrl}}/api/manage/users/role
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "userId": "SOME_USER_ID",
+  "newRole": "Admin"
+}

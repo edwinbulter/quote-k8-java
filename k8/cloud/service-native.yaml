@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: quote-api-service
+  namespace: quote-k8-java
+spec:
+  selector:
+    app: quote-api
+    mode: native
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer

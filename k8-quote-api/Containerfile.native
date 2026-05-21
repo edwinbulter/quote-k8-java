@@ -1,0 +1,9 @@
+FROM quay.io/quarkus/ubi-quarkus-native-image:22.3-java17 AS build
+COPY src /usr/src/app/src
+COPY pom.xml /usr/src/app
+RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests -Dnative
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+WORKDIR /work
+COPY --from=build /usr/src/app/target/*-runner /work/application
+EXPOSE 8080
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]

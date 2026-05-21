@@ -1,0 +1,41 @@
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: mongodb-cluster
+  namespace: quote-k8-java
+spec:
+  members: 1
+  type: ReplicaSet
+  version: "7.0.0"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: quote-user
+      passwordSecretRef:
+        name: mongodb-password
+      roles:
+        - name: readWrite
+          db: quote-db
+      scramCredentialsSecretName: quote-user-scram
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-password
+  namespace: quote-k8-java
+type: Opaque
+stringData:
+  password: "ChangeThisPassword123!"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: quote-k8-java
+spec:
+  selector:
+    app: mongodb-cluster-svc
+  ports:
+    - port: 27017
+      targetPort: 27017
