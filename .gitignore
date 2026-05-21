@@ -1,0 +1,14 @@
+# JWT signing key - contains secrets, must not be committed
+**/sign-key.jwk
+
+# Maven
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store

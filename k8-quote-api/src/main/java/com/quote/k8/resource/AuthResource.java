@@ -1,5 +1,7 @@
 package com.quote.k8.resource;
 
+import com.quote.k8.dto.LoginRequest;
+import com.quote.k8.dto.LoginResponse;
 import com.quote.k8.dto.RegisterRequest;
 import com.quote.k8.model.User;
 import com.quote.k8.service.AuthService;
@@ -40,6 +42,28 @@ public class AuthResource {
             LOG.error("Error registering user", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while registering the user")
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/login")
+    public Response login(@Valid LoginRequest request) {
+        try {
+            LOG.info("POST /api/auth/login - Login attempt for: " + request.loginIdentifier);
+            
+            String token = authService.login(request);
+            
+            return Response.ok(new LoginResponse(token)).build();
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Login failed: " + e.getMessage());
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("Invalid credentials")
+                    .build();
+        } catch (Exception e) {
+            LOG.error("Error during login", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred during login")
                     .build();
         }
     }

@@ -1,5 +1,6 @@
 package com.quote.k8.service;
 
+import com.quote.k8.dto.LoginRequest;
 import com.quote.k8.dto.RegisterRequest;
 import com.quote.k8.model.User;
 import com.quote.k8.model.UserRole;
@@ -20,6 +21,9 @@ public class AuthService {
 
     @Inject
     UserRoleRepository userRoleRepository;
+
+    @Inject
+    JwtService jwtService;
 
     public User register(RegisterRequest request) {
         // Validate password match
@@ -52,5 +56,33 @@ public class AuthService {
         LOG.info("USER role assigned to: " + user.username);
 
         return user;
+    }
+
+    public String login(LoginRequest request) {
+        User user = null;
+
+        // Try to find user by email first, then by username
+        if (request.loginIdentifier.contains("@")) {
+            user = userRepository.findByEmail(request.loginIdentifier)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        } else {
+            user = userRepository.findByUsername(request.loginIdentifier)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        }
+
+        // Verify password
+        if (!PasswordUtil.verifyPassword(request.password, user.passwordHash)) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+
+        if (!user.isActive) {
+            throw new IllegalArgumentException("User account is inactive");
+        }
+
+        // Generate JWT token
+        String token = jwtService.generateToken(user);
+        LOG.info("User logged in successfully: " + user.username);
+
+        return token;
     }
 }

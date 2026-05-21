@@ -1,0 +1,44 @@
+# quote-k8-java — Documentation
+
+## JWT Signing Key (`sign-key.jwk`)
+
+The file `k8-quote-api/src/main/resources/sign-key.jwk` is a **required runtime resource**. It contains the HMAC secret key (in JWK format) used to sign every JWT token issued by the login endpoint.
+
+### Why it exists
+
+SmallRye JWT requires a key source when `jwtBuilder.sign()` is called with no inline key argument. The key is referenced in `application.properties`:
+
+```properties
+smallrye.jwt.sign.key.location=sign-key.jwk
+smallrye.jwt.new-token.signature-algorithm=HS256
+```
+
+The file is packaged into the JAR via `src/main/resources/` and loaded at startup. **Removing it will cause the application to fail at startup** with:
+
+```
+SRJWT05021: Please set 'smallrye.jwt.sign.key.location' or 'smallrye.jwt.sign.key' property
+```
+
+### Security considerations
+
+- **Do not delete** `sign-key.jwk` — the application will not start without it.
+- **Do not commit it to a public repository** — it contains a secret key. Add it to `.gitignore` for public repos.
+- **For production**, store the JWK content in a Kubernetes Secret and mount it as a file, then override the property via an environment variable or config map:
+
+  ```yaml
+  # Example Kubernetes Secret
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: jwt-sign-key
+    namespace: quote-k8-java
+  type: Opaque
+  stringData:
+    sign-key.jwk: '{"kty":"oct","kid":"quote-k8-key","k":"<your-base64url-key>"}'
+  ```
+
+  Mount it into the pod and point the property to the mounted path:
+
+  ```properties
+  smallrye.jwt.sign.key.location=/etc/secrets/sign-key.jwk
+  ```
