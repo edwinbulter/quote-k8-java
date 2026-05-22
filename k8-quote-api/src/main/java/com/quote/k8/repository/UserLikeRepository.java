@@ -36,4 +36,15 @@ public class UserLikeRepository implements PanacheMongoRepository<UserLike> {
         delete(likeOpt.get());
         return true;
     }
+
+    public boolean updateOrder(String username, Integer quoteId, Integer newOrder) {
+        Optional<UserLike> likeOpt = findByUsernameAndQuoteId(username, quoteId);
+        if (likeOpt.isEmpty()) {
+            return false;
+        }
+        UserLike like = likeOpt.get();
+        like.order = newOrder;
+        update(like);
+        return true;
+    }
 }

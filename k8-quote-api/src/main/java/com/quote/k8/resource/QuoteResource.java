@@ -1,5 +1,6 @@
 package com.quote.k8.resource;
 
+import com.quote.k8.dto.ReorderRequest;
 import com.quote.k8.model.Quote;
 import com.quote.k8.model.UserProgress;
 import com.quote.k8.service.QuoteService;
@@ -227,6 +228,41 @@ public class QuoteResource {
             LOG.error("Error fetching liked quotes for authenticated user", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error fetching liked quotes: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/quote/{quoteId}/reorder")
+    @Authenticated
+    public Response reorderLikedQuote(@PathParam("quoteId") Integer quoteId, ReorderRequest request) {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("PUT /api/quote/" + quoteId + "/reorder - User: " + username + ", newPosition: " + request.newPosition);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            if (request.newPosition == null) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("newPosition is required")
+                        .build();
+            }
+
+            quoteService.reorderLikedQuote(username, quoteId, request.newPosition);
+            return Response.noContent().build();
+        } catch (IllegalStateException e) {
+            LOG.error("Error reordering liked quote", e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            LOG.error("Error reordering liked quote", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error reordering liked quote: " + e.getMessage())
                     .build();
         }
     }

@@ -283,4 +283,16 @@ public class QuoteService {
         LOG.info("Retrieved " + likedQuotes.size() + " liked quotes for user " + username);
         return likedQuotes;
     }
+
+    public void reorderLikedQuote(String username, Integer quoteId, Integer newOrder) {
+        LOG.info("User " + username + " reordering quote " + quoteId + " to position " + newOrder);
+
+        boolean updated = userLikeRepository.updateOrder(username, quoteId, newOrder);
+        if (!updated) {
+            LOG.warn("User " + username + " has not liked quote " + quoteId + " - cannot reorder");
+            throw new IllegalStateException("User has not liked this quote");
+        }
+
+        LOG.info("User " + username + " reordered quote " + quoteId + " to position " + newOrder);
+    }
 }

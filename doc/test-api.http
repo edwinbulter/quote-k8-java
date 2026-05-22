@@ -128,7 +128,7 @@ Authorization: Bearer {{authToken}}
 ### ============================================
 
 ### 8. Like Quote
-POST {{baseUrl}}/api/quote/1/like
+POST {{baseUrl}}/api/quote/3/like
 Authorization: Bearer {{authToken}}
 
 ### 9. Unlike Quote
@@ -164,12 +164,12 @@ GET {{baseUrl}}/api/quote/liked
 Authorization: Bearer {{authToken}}
 
 ### 17. Move Quote ID 3 to position 1
-PUT {{baseUrl}}/api/quote/3/reorder
+PUT {{baseUrl}}/api/quote/1/reorder
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "newPosition": 1
+  "newPosition": 3
 }
 
 ### ============================================
