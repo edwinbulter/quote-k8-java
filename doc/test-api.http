@@ -128,11 +128,11 @@ Authorization: Bearer {{authToken}}
 ### ============================================
 
 ### 8. Like Quote
-POST {{baseUrl}}/api/quote/2/like
+POST {{baseUrl}}/api/quote/1/like
 Authorization: Bearer {{authToken}}
 
 ### 9. Unlike Quote
-DELETE {{baseUrl}}/api/quote/2/unlike
+DELETE {{baseUrl}}/api/quote/1/unlike
 Authorization: Bearer {{authToken}}
 
 ### 10. Get All Liked Quotes

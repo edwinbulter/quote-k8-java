@@ -244,4 +244,24 @@ public class QuoteService {
 
         return quoteOpt.get();
     }
+
+    public Quote unlikeQuote(String username, Integer quoteId) {
+        LOG.info("User " + username + " unliking quote ID: " + quoteId);
+
+        Optional<Quote> quoteOpt = quoteRepository.findByQuoteId(quoteId);
+        if (quoteOpt.isEmpty()) {
+            LOG.warn("Quote with ID " + quoteId + " not found");
+            return null;
+        }
+
+        // Delete the like record (idempotent - no error if not found)
+        boolean deleted = userLikeRepository.deleteByUsernameAndQuoteId(username, quoteId);
+        if (deleted) {
+            LOG.info("User " + username + " unliked quote " + quoteId);
+        } else {
+            LOG.info("User " + username + " had not liked quote " + quoteId + " (no-op)");
+        }
+
+        return quoteOpt.get();
+    }
 }

@@ -176,4 +176,34 @@ public class QuoteResource {
                     .build();
         }
     }
+
+    @DELETE
+    @Path("/quote/{quoteId}/unlike")
+    @Authenticated
+    public Response unlikeQuote(@PathParam("quoteId") Integer quoteId) {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("DELETE /api/quote/" + quoteId + "/unlike - User: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            Quote quote = quoteService.unlikeQuote(username, quoteId);
+            if (quote == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Quote not found")
+                        .build();
+            }
+
+            return Response.noContent().build();
+        } catch (Exception e) {
+            LOG.error("Error unliking quote", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error unliking quote: " + e.getMessage())
+                    .build();
+        }
+    }
 }

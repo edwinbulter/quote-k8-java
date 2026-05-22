@@ -10,7 +10,7 @@ Describe in a markdown document how to create a base K8 project that can be depl
 
 
 Create a markdown file describing the implementation, deployment and testing (on the local Kind K8 cluster) for this endpoint: 
-### 8. Like Quote
-POST {{baseUrl}}/api/quote/2/like
-Authorization: Bearer {{authToken}}
+### 9. Unlike Quote
+DELETE {{baseUrl}}/api/quote/2/unlike
+Authorization: Bearer {{authToken}}}
 by migrating the C# code in quote-azure-k8-backend to Java

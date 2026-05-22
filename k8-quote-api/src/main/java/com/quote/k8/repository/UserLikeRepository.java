@@ -25,4 +25,13 @@ public class UserLikeRepository implements PanacheMongoRepository<UserLike> {
                 .max()
                 .orElse(0);
     }
+
+    public boolean deleteByUsernameAndQuoteId(String username, Integer quoteId) {
+        Optional<UserLike> likeOpt = findByUsernameAndQuoteId(username, quoteId);
+        if (likeOpt.isEmpty()) {
+            return false;
+        }
+        delete(likeOpt.get());
+        return true;
+    }
 }
