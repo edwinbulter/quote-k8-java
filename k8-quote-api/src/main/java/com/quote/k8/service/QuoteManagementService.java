@@ -1,5 +1,6 @@
 package com.quote.k8.service;
 
+import com.quote.k8.dto.QuoteAddResponse;
 import com.quote.k8.dto.QuotePageResponse;
 import com.quote.k8.model.Quote;
 import com.quote.k8.repository.QuoteRepository;
@@ -18,6 +19,9 @@ public class QuoteManagementService {
 
     @Inject
     QuoteRepository quoteRepository;
+
+    @Inject
+    ZenQuotesService zenQuotesService;
 
     public QuotePageResponse getQuotes(int page, int pageSize, String quoteText, String author, String sortBy, String sortOrder) {
         LOG.info("Getting quotes with pagination - page: " + page + ", pageSize: " + pageSize + 
@@ -84,5 +88,49 @@ public class QuoteManagementService {
         LOG.info("Returning " + paginatedQuotes.size() + " quotes (total: " + totalCount + ", pages: " + totalPages + ")");
 
         return new QuotePageResponse(paginatedQuotes, totalCount, page, pageSize, totalPages);
+    }
+
+    public QuoteAddResponse fetchAndAddNewQuotes(String requestingUsername) {
+        LOG.info("Fetching and adding new quotes for user: " + requestingUsername);
+
+        try {
+            List<Quote> newQuotes = zenQuotesService.getMultipleQuotes();
+            int addedCount = 0;
+
+            List<Quote> existingQuotes = quoteRepository.findAllQuotes();
+
+            for (Quote quote : newQuotes) {
+                // Check if quote already exists (by text and author, case-insensitive)
+                boolean exists = existingQuotes.stream()
+                        .anyMatch(q -> q.quoteText != null && q.quoteText.equalsIgnoreCase(quote.quoteText)
+                                && q.author != null && q.author.equalsIgnoreCase(quote.author));
+
+                if (!exists) {
+                    // Assign new ID
+                    int maxId = existingQuotes.stream()
+                            .mapToInt(q -> q.quoteId != null ? q.quoteId : 0)
+                            .max()
+                            .orElse(0);
+                    quote.quoteId = maxId + 1;
+
+                    quoteRepository.persist(quote);
+                    addedCount++;
+                    existingQuotes.add(quote); // Add to list to avoid duplicates in same batch
+                }
+            }
+
+            int totalQuotes = quoteRepository.findAllQuotes().size();
+
+            LOG.info("Added " + addedCount + " new quotes by " + requestingUsername);
+
+            return new QuoteAddResponse(
+                    addedCount,
+                    totalQuotes,
+                    "Successfully added " + addedCount + " new quotes"
+            );
+        } catch (Exception e) {
+            LOG.error("Error fetching and adding new quotes", e);
+            throw new RuntimeException("Failed to fetch and add quotes", e);
+        }
     }
 }

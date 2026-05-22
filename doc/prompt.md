@@ -10,7 +10,7 @@ Describe in a markdown document how to create a base K8 project that can be depl
 
 
 Create a markdown file describing the implementation, deployment and testing (on the local Kind K8 cluster) for this endpoint: 
-### 21. GET quotes
-GET {{baseUrl}}/api/manage/quotes?page=2&pageSize=50&sortBy=id&sortOrder=asc
+### 22. FETCH quotes (adds quotes to database)
+POST {{baseUrl}}/api/manage/quotes/fetch
 Authorization: Bearer {{authToken}}
 by migrating the C# code in quote-azure-k8-backend to Java

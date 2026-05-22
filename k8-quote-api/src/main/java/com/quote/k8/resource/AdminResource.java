@@ -1,6 +1,7 @@
 package com.quote.k8.resource;
 
 import com.quote.k8.dto.AdminUserInfo;
+import com.quote.k8.dto.QuoteAddResponse;
 import com.quote.k8.dto.QuotePageResponse;
 import com.quote.k8.service.AuthService;
 import com.quote.k8.service.QuoteManagementService;
@@ -85,6 +86,30 @@ public class AdminResource {
             LOG.error("Error fetching quotes", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while retrieving quotes")
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/quotes/fetch")
+    @RolesAllowed("ADMIN")
+    public Response fetchQuotes() {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("POST /api/manage/quotes/fetch - Fetching quotes for admin: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            QuoteAddResponse response = quoteManagementService.fetchAndAddNewQuotes(username);
+            return Response.ok(response).build();
+        } catch (Exception e) {
+            LOG.error("Error fetching quotes", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while fetching quotes")
                     .build();
         }
     }
