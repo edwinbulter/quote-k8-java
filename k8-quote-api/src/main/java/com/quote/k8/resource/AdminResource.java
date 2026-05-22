@@ -186,4 +186,44 @@ public class AdminResource {
                     .build();
         }
     }
+
+    @DELETE
+    @Path("/users/role")
+    @RolesAllowed("ADMIN")
+    public Response removeUserRole(UpdateRoleRequest request) {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("DELETE /api/manage/users/role - Removing role for user: " + request.username + " by admin: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            boolean result = authService.removeUserRole(username, request);
+            if (result) {
+                return Response.ok("User role removed successfully").build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Failed to remove user role")
+                        .build();
+            }
+        } catch (SecurityException e) {
+            LOG.warn("Unauthorized access attempt: " + e.getMessage());
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Invalid request: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            LOG.error("Error removing user role", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while removing user role")
+                    .build();
+        }
+    }
 }

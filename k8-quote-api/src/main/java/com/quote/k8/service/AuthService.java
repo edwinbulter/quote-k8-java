@@ -169,4 +169,30 @@ public class AuthService {
         LOG.info("User role updated successfully: " + targetUser.username + " -> " + roleUpper);
         return true;
     }
+
+    public boolean removeUserRole(String adminUsername, UpdateRoleRequest request) {
+        LOG.info("Removing user role for: " + request.username + " role: " + request.role + " by admin: " + adminUsername);
+
+        // Verify admin role
+        if (!userRoleRepository.userHasRole(adminUsername, "ADMIN")) {
+            throw new SecurityException("Only admins can remove user roles");
+        }
+
+        // Find target user
+        User targetUser = userRepository.findByUsername(request.username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.username));
+
+        // Check if user has this role
+        String roleUpper = request.role.toUpperCase();
+        if (!userRoleRepository.userHasRole(targetUser.username, roleUpper)) {
+            LOG.info("User " + targetUser.username + " does not have role: " + roleUpper);
+            return false;
+        }
+
+        // Delete the role assignment
+        userRoleRepository.deleteByUsernameAndRole(targetUser.username, roleUpper);
+
+        LOG.info("User role removed successfully: " + targetUser.username + " -> " + roleUpper);
+        return true;
+    }
 }
