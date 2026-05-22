@@ -12,4 +12,13 @@ public class UserProgressRepository implements PanacheMongoRepository<UserProgre
     public Optional<UserProgress> findByUsername(String username) {
         return find("username", username).firstResultOptional();
     }
+
+    public boolean deleteByUsername(String username) {
+        Optional<UserProgress> progressOpt = findByUsername(username);
+        if (progressOpt.isEmpty()) {
+            return false;
+        }
+        delete(progressOpt.get());
+        return true;
+    }
 }

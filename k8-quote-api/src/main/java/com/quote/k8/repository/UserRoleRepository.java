@@ -25,4 +25,12 @@ public class UserRoleRepository implements PanacheMongoRepository<UserRole> {
     public void deleteByUsernameAndRole(String username, String role) {
         delete("username = ?1 and role = ?2", username, role);
     }
+
+    public boolean deleteAllByUsername(String username) {
+        List<UserRole> roles = find("username", username).list();
+        for (UserRole role : roles) {
+            delete(role);
+        }
+        return true;
+    }
 }

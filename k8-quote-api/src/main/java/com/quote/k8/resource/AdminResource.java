@@ -3,6 +3,7 @@ package com.quote.k8.resource;
 import com.quote.k8.dto.AdminUserInfo;
 import com.quote.k8.dto.QuoteAddResponse;
 import com.quote.k8.dto.QuotePageResponse;
+import com.quote.k8.dto.RemoveUserAccountRequest;
 import com.quote.k8.dto.UpdateRoleRequest;
 import com.quote.k8.service.AuthService;
 import com.quote.k8.service.QuoteManagementService;
@@ -223,6 +224,46 @@ public class AdminResource {
             LOG.error("Error removing user role", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while removing user role")
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/users/account")
+    @RolesAllowed("ADMIN")
+    public Response deleteUserAccount(RemoveUserAccountRequest request) {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("DELETE /api/manage/users/account - Deleting account for user: " + request.username + " by admin: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            boolean result = authService.deleteUserAccount(username, request);
+            if (result) {
+                return Response.ok("User account deleted successfully").build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Failed to delete user account")
+                        .build();
+            }
+        } catch (SecurityException e) {
+            LOG.warn("Unauthorized access attempt: " + e.getMessage());
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Invalid request: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            LOG.error("Error deleting user account", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while deleting user account")
                     .build();
         }
     }

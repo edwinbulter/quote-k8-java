@@ -51,4 +51,12 @@ public class UserLikeRepository implements PanacheMongoRepository<UserLike> {
     public long countAll() {
         return count();
     }
+
+    public boolean deleteAllByUsername(String username) {
+        List<UserLike> likes = findByUsernameOrderByOrder(username);
+        for (UserLike like : likes) {
+            delete(like);
+        }
+        return true;
+    }
 }

@@ -3,9 +3,12 @@ package com.quote.k8.service;
 import com.quote.k8.dto.AdminUserInfo;
 import com.quote.k8.dto.LoginRequest;
 import com.quote.k8.dto.RegisterRequest;
+import com.quote.k8.dto.RemoveUserAccountRequest;
 import com.quote.k8.dto.UpdateRoleRequest;
 import com.quote.k8.model.User;
 import com.quote.k8.model.UserRole;
+import com.quote.k8.repository.UserLikeRepository;
+import com.quote.k8.repository.UserProgressRepository;
 import com.quote.k8.repository.UserRepository;
 import com.quote.k8.repository.UserRoleRepository;
 import com.quote.k8.util.PasswordUtil;
@@ -28,6 +31,12 @@ public class AuthService {
 
     @Inject
     UserRoleRepository userRoleRepository;
+
+    @Inject
+    UserLikeRepository userLikeRepository;
+
+    @Inject
+    UserProgressRepository userProgressRepository;
 
     @Inject
     JwtService jwtService;
@@ -193,6 +202,43 @@ public class AuthService {
         userRoleRepository.deleteByUsernameAndRole(targetUser.username, roleUpper);
 
         LOG.info("User role removed successfully: " + targetUser.username + " -> " + roleUpper);
+        return true;
+    }
+
+    public boolean deleteUserAccount(String adminUsername, RemoveUserAccountRequest request) {
+        LOG.info("Deleting user account: " + request.username + " by admin: " + adminUsername);
+
+        // Verify admin role
+        if (!userRoleRepository.userHasRole(adminUsername, "ADMIN")) {
+            throw new SecurityException("Only admins can delete user accounts");
+        }
+
+        // Find target user
+        User targetUser = userRepository.findByUsername(request.username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.username));
+
+        // Prevent deleting the admin's own account
+        if (targetUser.username.equals(adminUsername)) {
+            throw new IllegalArgumentException("Cannot delete your own account");
+        }
+
+        // Delete all user data in the correct order
+        // 1. Delete user likes
+        userLikeRepository.deleteAllByUsername(targetUser.username);
+        LOG.info("Deleted all likes for user: " + targetUser.username);
+
+        // 2. Delete user progress
+        userProgressRepository.deleteByUsername(targetUser.username);
+        LOG.info("Deleted user progress for: " + targetUser.username);
+
+        // 3. Delete user roles
+        userRoleRepository.deleteAllByUsername(targetUser.username);
+        LOG.info("Deleted all roles for user: " + targetUser.username);
+
+        // 4. Delete user record
+        userRepository.deleteByUsername(targetUser.username);
+        LOG.info("Deleted user account: " + targetUser.username);
+
         return true;
     }
 }

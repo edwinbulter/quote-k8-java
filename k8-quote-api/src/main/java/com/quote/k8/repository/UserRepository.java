@@ -29,4 +29,13 @@ public class UserRepository implements PanacheMongoRepository<User> {
     public List<User> findAllUsers() {
         return findAll().list();
     }
+    
+    public boolean deleteByUsername(String username) {
+        Optional<User> userOpt = findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        delete(userOpt.get());
+        return true;
+    }
 }
