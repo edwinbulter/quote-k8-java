@@ -47,4 +47,8 @@ public class UserLikeRepository implements PanacheMongoRepository<UserLike> {
         update(like);
         return true;
     }
+
+    public long countAll() {
+        return count();
+    }
 }

@@ -4,6 +4,7 @@ import com.quote.k8.dto.QuoteAddResponse;
 import com.quote.k8.dto.QuotePageResponse;
 import com.quote.k8.model.Quote;
 import com.quote.k8.repository.QuoteRepository;
+import com.quote.k8.repository.UserLikeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -19,6 +20,9 @@ public class QuoteManagementService {
 
     @Inject
     QuoteRepository quoteRepository;
+
+    @Inject
+    UserLikeRepository userLikeRepository;
 
     @Inject
     ZenQuotesService zenQuotesService;
@@ -132,5 +136,12 @@ public class QuoteManagementService {
             LOG.error("Error fetching and adding new quotes", e);
             throw new RuntimeException("Failed to fetch and add quotes", e);
         }
+    }
+
+    public long getTotalLikes() {
+        LOG.info("Getting total likes count");
+        long totalLikes = userLikeRepository.countAll();
+        LOG.info("Total likes: " + totalLikes);
+        return totalLikes;
     }
 }

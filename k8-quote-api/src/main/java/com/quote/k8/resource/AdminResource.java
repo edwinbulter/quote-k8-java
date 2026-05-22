@@ -113,4 +113,36 @@ public class AdminResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/stats")
+    @RolesAllowed("ADMIN")
+    public Response getStats() {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("GET /api/manage/stats - Fetching stats for admin: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            long totalLikes = quoteManagementService.getTotalLikes();
+            return Response.ok(new StatsResponse(totalLikes)).build();
+        } catch (Exception e) {
+            LOG.error("Error fetching stats", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while retrieving statistics")
+                    .build();
+        }
+    }
+
+    public static class StatsResponse {
+        public long totalLikes;
+
+        public StatsResponse(long totalLikes) {
+            this.totalLikes = totalLikes;
+        }
+    }
 }
