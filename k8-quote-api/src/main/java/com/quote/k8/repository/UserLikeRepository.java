@@ -15,7 +15,9 @@ public class UserLikeRepository implements PanacheMongoRepository<UserLike> {
     }
 
     public List<UserLike> findByUsernameOrderByOrder(String username) {
-        return find("username", username).list();
+        return find("username", username).stream()
+                .sorted((a, b) -> Integer.compare(a.order != null ? a.order : 0, b.order != null ? b.order : 0))
+                .toList();
     }
 
     public Integer getMaxOrderForUser(String username) {

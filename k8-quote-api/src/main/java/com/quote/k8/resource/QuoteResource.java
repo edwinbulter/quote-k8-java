@@ -206,4 +206,28 @@ public class QuoteResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/quote/liked")
+    @Authenticated
+    public Response getLikedQuotes() {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("GET /api/quote/liked - Fetching liked quotes for user: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            List<Quote> likedQuotes = quoteService.getLikedQuotesForUser(username);
+            return Response.ok(likedQuotes).build();
+        } catch (Exception e) {
+            LOG.error("Error fetching liked quotes for authenticated user", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error fetching liked quotes: " + e.getMessage())
+                    .build();
+        }
+    }
 }

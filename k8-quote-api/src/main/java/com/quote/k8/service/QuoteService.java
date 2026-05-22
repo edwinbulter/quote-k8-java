@@ -264,4 +264,23 @@ public class QuoteService {
 
         return quoteOpt.get();
     }
+
+    public List<Quote> getLikedQuotesForUser(String username) {
+        LOG.info("Getting liked quotes for user: " + username);
+
+        List<UserLike> userLikes = userLikeRepository.findByUsernameOrderByOrder(username);
+        List<Quote> likedQuotes = new ArrayList<>();
+
+        for (UserLike like : userLikes) {
+            Optional<Quote> quoteOpt = quoteRepository.findByQuoteId(like.quoteId);
+            if (quoteOpt.isPresent()) {
+                likedQuotes.add(quoteOpt.get());
+            } else {
+                LOG.warn("Quote with ID " + like.quoteId + " not found for user " + username + " like record");
+            }
+        }
+
+        LOG.info("Retrieved " + likedQuotes.size() + " liked quotes for user " + username);
+        return likedQuotes;
+    }
 }

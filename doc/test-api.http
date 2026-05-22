@@ -139,10 +139,6 @@ Authorization: Bearer {{authToken}}
 GET {{baseUrl}}/api/quote/liked
 Authorization: Bearer {{authToken}}
 
-### 11. GET View History for user
-GET {{baseUrl}}/api/quote/viewed
-Authorization: Bearer {{authToken}}
-
 ### ============================================
 ### ERROR TESTING
 ### ============================================
