@@ -199,7 +199,7 @@ Content-Type: application/json
 
 {
   "username": "user-b",
-  "role": "User"
+  "role": "Admin"
 }
 
 ### 25. Remove user role (admin only)

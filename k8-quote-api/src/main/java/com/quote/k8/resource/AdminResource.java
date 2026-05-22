@@ -3,6 +3,7 @@ package com.quote.k8.resource;
 import com.quote.k8.dto.AdminUserInfo;
 import com.quote.k8.dto.QuoteAddResponse;
 import com.quote.k8.dto.QuotePageResponse;
+import com.quote.k8.dto.UpdateRoleRequest;
 import com.quote.k8.service.AuthService;
 import com.quote.k8.service.QuoteManagementService;
 import jakarta.annotation.security.RolesAllowed;
@@ -143,6 +144,46 @@ public class AdminResource {
 
         public StatsResponse(long totalLikes) {
             this.totalLikes = totalLikes;
+        }
+    }
+
+    @PUT
+    @Path("/users/role")
+    @RolesAllowed("ADMIN")
+    public Response updateUserRole(UpdateRoleRequest request) {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("PUT /api/manage/users/role - Updating role for user: " + request.username + " by admin: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            boolean result = authService.updateUserRole(username, request);
+            if (result) {
+                return Response.ok("User role updated successfully").build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Failed to update user role")
+                        .build();
+            }
+        } catch (SecurityException e) {
+            LOG.warn("Unauthorized access attempt: " + e.getMessage());
+            return Response.status(Response.Status.FORBIDDEN)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Invalid request: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            LOG.error("Error updating user role", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while updating user role")
+                    .build();
         }
     }
 }

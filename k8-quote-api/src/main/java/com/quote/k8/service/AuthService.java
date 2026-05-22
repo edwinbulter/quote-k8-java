@@ -3,6 +3,7 @@ package com.quote.k8.service;
 import com.quote.k8.dto.AdminUserInfo;
 import com.quote.k8.dto.LoginRequest;
 import com.quote.k8.dto.RegisterRequest;
+import com.quote.k8.dto.UpdateRoleRequest;
 import com.quote.k8.model.User;
 import com.quote.k8.model.UserRole;
 import com.quote.k8.repository.UserRepository;
@@ -109,6 +110,7 @@ public class AuthService {
             List<String> roles = userRoles.stream()
                     .map(ur -> ur.role != null ? ur.role.toUpperCase() : "")
                     .filter(r -> !r.isEmpty())
+                    .distinct()
                     .collect(Collectors.toList());
 
             // Default to USER role if no roles found
@@ -135,5 +137,36 @@ public class AuthService {
 
         LOG.info("Retrieved " + userInfos.size() + " users");
         return userInfos;
+    }
+
+    public boolean updateUserRole(String adminUsername, UpdateRoleRequest request) {
+        LOG.info("Updating user role for: " + request.username + " to: " + request.role + " by admin: " + adminUsername);
+
+        // Verify admin role
+        if (!userRoleRepository.userHasRole(adminUsername, "ADMIN")) {
+            throw new SecurityException("Only admins can update user roles");
+        }
+
+        // Find target user
+        User targetUser = userRepository.findByUsername(request.username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + request.username));
+
+        // Check if user already has this role
+        String roleUpper = request.role.toUpperCase();
+        if (userRoleRepository.userHasRole(targetUser.username, roleUpper)) {
+            LOG.info("User " + targetUser.username + " already has role: " + roleUpper);
+            return false;
+        }
+
+        // Create new role assignment (supports multiple roles per user)
+        UserRole userRole = new UserRole(
+            targetUser.username,
+            roleUpper,
+            adminUsername
+        );
+        userRoleRepository.persist(userRole);
+
+        LOG.info("User role updated successfully: " + targetUser.username + " -> " + roleUpper);
+        return true;
     }
 }

@@ -21,4 +21,8 @@ public class UserRoleRepository implements PanacheMongoRepository<UserRole> {
     public List<UserRole> findAllByUsername(String username) {
         return find("username", username).list();
     }
+    
+    public void deleteByUsernameAndRole(String username, String role) {
+        delete("username = ?1 and role = ?2", username, role);
+    }
 }

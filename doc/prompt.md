@@ -10,9 +10,15 @@ Describe in a markdown document how to create a base K8 project that can be depl
 
 
 Create a markdown file describing the implementation, deployment and testing (on the local Kind K8 cluster) for this endpoint: 
-### 23. Get stats (total likes)
-GET {{baseUrl}}/api/manage/stats
+### 24. Update user role (admin only)
+PUT {{baseUrl}}/api/manage/users/role
 Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "username": "user-b",
+  "role": "User"
+}
 by migrating the C# code in quote-azure-k8-backend to Java
 
 Do everything what is described in the document
