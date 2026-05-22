@@ -5,6 +5,7 @@ import com.quote.k8.dto.ChangePasswordRequest;
 import com.quote.k8.dto.LoginRequest;
 import com.quote.k8.dto.RegisterRequest;
 import com.quote.k8.dto.RemoveUserAccountRequest;
+import com.quote.k8.dto.UnregisterRequest;
 import com.quote.k8.dto.UpdateRoleRequest;
 import com.quote.k8.model.User;
 import com.quote.k8.model.UserRole;
@@ -266,6 +267,38 @@ public class AuthService {
         userRepository.update(user);
 
         LOG.info("Password changed successfully for user: " + username);
+        return true;
+    }
+
+    public boolean unregister(String username, UnregisterRequest request) {
+        LOG.info("Unregistering user account: " + username);
+
+        // Find user
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+
+        // Verify password
+        if (!PasswordUtil.verifyPassword(request.password, user.passwordHash)) {
+            throw new SecurityException("Invalid password");
+        }
+
+        // Delete all user data in the correct order
+        // 1. Delete user likes
+        userLikeRepository.deleteAllByUsername(user.username);
+        LOG.info("Deleted all likes for user: " + user.username);
+
+        // 2. Delete user progress
+        userProgressRepository.deleteByUsername(user.username);
+        LOG.info("Deleted user progress for: " + user.username);
+
+        // 3. Delete user roles
+        userRoleRepository.deleteAllByUsername(user.username);
+        LOG.info("Deleted all roles for user: " + user.username);
+
+        // 4. Delete user record
+        userRepository.deleteByUsername(user.username);
+        LOG.info("Deleted user account: " + user.username);
+
         return true;
     }
 }

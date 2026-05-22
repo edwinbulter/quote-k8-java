@@ -4,6 +4,7 @@ import com.quote.k8.dto.ChangePasswordRequest;
 import com.quote.k8.dto.LoginRequest;
 import com.quote.k8.dto.LoginResponse;
 import com.quote.k8.dto.RegisterRequest;
+import com.quote.k8.dto.UnregisterRequest;
 import com.quote.k8.model.User;
 import com.quote.k8.service.AuthService;
 import jakarta.inject.Inject;
@@ -108,6 +109,45 @@ public class AuthResource {
             LOG.error("Error changing password", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("An error occurred while changing password")
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/unregister")
+    public Response unregister(@Valid UnregisterRequest request) {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("DELETE /api/auth/unregister - Unregistering user: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            boolean result = authService.unregister(username, request);
+            if (result) {
+                return Response.ok("Account deleted successfully").build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Failed to delete account")
+                        .build();
+            }
+        } catch (SecurityException e) {
+            LOG.warn("Unauthorized access attempt: " + e.getMessage());
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Invalid request: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            LOG.error("Error unregistering user", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("An error occurred while deleting account")
                     .build();
         }
     }

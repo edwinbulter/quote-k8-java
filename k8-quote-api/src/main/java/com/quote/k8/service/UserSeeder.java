@@ -27,8 +27,9 @@ public class UserSeeder {
             // Check if admin user already exists
             var existingAdmin = userRepository.findByUsername("admin");
             if (existingAdmin.isPresent()) {
-                LOG.info("Admin user already exists, skipping creation");
-                return;
+                LOG.info("Admin user already exists, deleting and recreating");
+                userRepository.deleteByUsername("admin");
+                userRoleRepository.deleteAllByUsername("admin");
             }
 
             // Create admin user

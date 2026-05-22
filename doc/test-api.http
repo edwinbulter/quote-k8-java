@@ -218,7 +218,7 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "username": "user-a"
+  "username": "user-f"
 }
 
 ### ============================================
@@ -265,18 +265,18 @@ Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "password": "Hello-user-c"
+  "password": "New-user-e"
 }
 
 ### ============================================
 ### ERROR TESTING - ADMIN ENDPOINTS
 ### ============================================
 
-### 24. Get all users with regular user token (should return 403)
+### 34. Get all users with regular user token (should return 403)
 GET {{baseUrl}}/api/manage/users
 Authorization: Bearer {{authToken}}
 
-### 25. Update user role with regular user token (should return 403)
+### 35. Update user role with regular user token (should return 403)
 PUT {{baseUrl}}/api/manage/users/role
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
