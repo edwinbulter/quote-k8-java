@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -169,5 +170,30 @@ public class QuoteService {
         } catch (Exception e) {
             LOG.error("Failed to fetch quotes from ZenQuotes", e);
         }
+    }
+
+    public List<Quote> getViewedQuotesForUser(String username) {
+        LOG.info("Getting viewed quotes for user: " + username);
+
+        Optional<UserProgress> progressOpt = userProgressRepository.findByUsername(username);
+        if (progressOpt.isEmpty() || progressOpt.get().lastQuoteId <= 0) {
+            LOG.info("User " + username + " has no progress or hasn't viewed any quotes");
+            return List.of();
+        }
+
+        int lastQuoteId = progressOpt.get().lastQuoteId;
+        List<Quote> viewedQuotes = new ArrayList<>();
+
+        for (int i = 1; i <= lastQuoteId; i++) {
+            Optional<Quote> quote = quoteRepository.findByQuoteId(i);
+            if (quote.isPresent()) {
+                viewedQuotes.add(quote.get());
+            } else {
+                LOG.warn("Quote with ID " + i + " not found while getting viewed quotes for user " + username);
+            }
+        }
+
+        LOG.info("Retrieved " + viewedQuotes.size() + " viewed quotes for user " + username);
+        return viewedQuotes;
     }
 }

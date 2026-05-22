@@ -90,4 +90,28 @@ public class QuoteResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/quote/viewed")
+    @Authenticated
+    public Response getViewHistory() {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("GET /api/quote/viewed - Fetching view history for user: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            List<Quote> viewedQuotes = quoteService.getViewedQuotesForUser(username);
+            return Response.ok(viewedQuotes).build();
+        } catch (Exception e) {
+            LOG.error("Error fetching view history for authenticated user", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error fetching view history: " + e.getMessage())
+                    .build();
+        }
+    }
 }
