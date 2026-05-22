@@ -146,4 +146,34 @@ public class QuoteResource {
                     .build();
         }
     }
+
+    @POST
+    @Path("/quote/{quoteId}/like")
+    @Authenticated
+    public Response likeQuote(@PathParam("quoteId") Integer quoteId) {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("POST /api/quote/" + quoteId + "/like - User: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            Quote quote = quoteService.likeQuote(username, quoteId);
+            if (quote == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Quote not found")
+                        .build();
+            }
+
+            return Response.ok(quote).build();
+        } catch (Exception e) {
+            LOG.error("Error liking quote", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error liking quote: " + e.getMessage())
+                    .build();
+        }
+    }
 }

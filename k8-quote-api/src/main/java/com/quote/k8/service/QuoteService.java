@@ -1,8 +1,10 @@
 package com.quote.k8.service;
 
 import com.quote.k8.model.Quote;
+import com.quote.k8.model.UserLike;
 import com.quote.k8.model.UserProgress;
 import com.quote.k8.repository.QuoteRepository;
+import com.quote.k8.repository.UserLikeRepository;
 import com.quote.k8.repository.UserProgressRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -29,6 +31,9 @@ public class QuoteService {
 
     @Inject
     UserProgressRepository userProgressRepository;
+
+    @Inject
+    UserLikeRepository userLikeRepository;
 
     public Quote getRandomQuote() {
         return getRandomQuote(new HashSet<>());
@@ -209,5 +214,34 @@ public class QuoteService {
         }
 
         return progress;
+    }
+
+    public Quote likeQuote(String username, Integer quoteId) {
+        LOG.info("User " + username + " liking quote ID: " + quoteId);
+
+        Optional<Quote> quoteOpt = quoteRepository.findByQuoteId(quoteId);
+        if (quoteOpt.isEmpty()) {
+            LOG.warn("Quote with ID " + quoteId + " not found");
+            return null;
+        }
+
+        // Check if user already liked this quote (optional - remove if allowing duplicates)
+        Optional<UserLike> existingLike = userLikeRepository.findByUsernameAndQuoteId(username, quoteId);
+        if (existingLike.isPresent()) {
+            LOG.info("User " + username + " already liked quote " + quoteId);
+            return quoteOpt.get();
+        }
+
+        // Get current max order for this user
+        Integer maxOrder = userLikeRepository.getMaxOrderForUser(username);
+        Integer newOrder = maxOrder + 1;
+
+        // Create and persist the like
+        UserLike userLike = new UserLike(username, quoteId, newOrder);
+        userLikeRepository.persist(userLike);
+
+        LOG.info("User " + username + " liked quote " + quoteId + " with order " + newOrder);
+
+        return quoteOpt.get();
     }
 }

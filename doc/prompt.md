@@ -9,8 +9,8 @@ Describe in a markdown document how to create a base K8 project that can be depl
 - As a start, make the endpoint GET {{baseUrl}}/api/quotes/random work by migrating the exact functionality from doc/quote-azure-k8-backend to the new project. This endpoint fetches data from ZenQuotes when the database is empty and stores it in the database, or returns a random quote from the database.
 
 
-Create a markdown file describing the implementation for this endpoint: 
-### 6. GET Progress (authenticated)
-GET {{baseUrl}}/api/quote/progress
-Authorization: Bearer {{authToken}} 
+Create a markdown file describing the implementation, deployment and testing (on the local Kind K8 cluster) for this endpoint: 
+### 8. Like Quote
+POST {{baseUrl}}/api/quote/2/like
+Authorization: Bearer {{authToken}}
 by migrating the C# code in quote-azure-k8-backend to Java
