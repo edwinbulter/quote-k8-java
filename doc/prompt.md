@@ -10,14 +10,16 @@ Describe in a markdown document how to create a base K8 project that can be depl
 
 
 Create a markdown file describing the implementation, deployment and testing (on the local Kind K8 cluster) for this endpoint: 
-### 26. Remove user, delete account and all data (admin only)
-DELETE {{baseUrl}}/api/manage/users/account
+### 32. Change password
+POST {{baseUrl}}/api/auth/change-password
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
 {
-  "username": "user-a"
+  "currentPassword": "Hello-user-c",
+  "newPassword": "NewUser123!",
+  "confirmNewPassword": "NewUser123!"
 }
 by migrating the C# code in quote-azure-k8-backend to Java
 
-Do everything as described in remove-user-account-implementation.md
+Do everything as described in change-password-implementation.md

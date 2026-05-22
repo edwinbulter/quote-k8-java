@@ -38,4 +38,8 @@ public class UserRepository implements PanacheMongoRepository<User> {
         delete(userOpt.get());
         return true;
     }
+    
+    public void update(User user) {
+        persistOrUpdate(user);
+    }
 }

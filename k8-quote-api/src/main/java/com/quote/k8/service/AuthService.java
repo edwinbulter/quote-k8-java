@@ -1,6 +1,7 @@
 package com.quote.k8.service;
 
 import com.quote.k8.dto.AdminUserInfo;
+import com.quote.k8.dto.ChangePasswordRequest;
 import com.quote.k8.dto.LoginRequest;
 import com.quote.k8.dto.RegisterRequest;
 import com.quote.k8.dto.RemoveUserAccountRequest;
@@ -239,6 +240,32 @@ public class AuthService {
         userRepository.deleteByUsername(targetUser.username);
         LOG.info("Deleted user account: " + targetUser.username);
 
+        return true;
+    }
+
+    public boolean changePassword(String username, ChangePasswordRequest request) {
+        LOG.info("Changing password for user: " + username);
+
+        // Validate password match
+        if (!request.isPasswordMatch()) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        // Find user
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+
+        // Verify current password
+        if (!PasswordUtil.verifyPassword(request.currentPassword, user.passwordHash)) {
+            throw new SecurityException("Current password is incorrect");
+        }
+
+        // Update password
+        user.passwordHash = PasswordUtil.hashPassword(request.newPassword);
+        user.updatedAt = java.time.LocalDateTime.now();
+        userRepository.update(user);
+
+        LOG.info("Password changed successfully for user: " + username);
         return true;
     }
 }
