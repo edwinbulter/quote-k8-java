@@ -1,6 +1,7 @@
 package com.quote.k8.resource;
 
 import com.quote.k8.model.Quote;
+import com.quote.k8.model.UserProgress;
 import com.quote.k8.service.QuoteService;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -11,6 +12,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,6 +113,36 @@ public class QuoteResource {
             LOG.error("Error fetching view history for authenticated user", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error fetching view history: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/quote/progress")
+    @Authenticated
+    public Response getProgress() {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("GET /api/quote/progress - Fetching progress for user: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            Optional<UserProgress> progress = quoteService.getUserProgress(username);
+            if (progress.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("User progress not found")
+                        .build();
+            }
+
+            return Response.ok(progress.get()).build();
+        } catch (Exception e) {
+            LOG.error("Error fetching user progress for authenticated user", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error fetching user progress: " + e.getMessage())
                     .build();
         }
     }

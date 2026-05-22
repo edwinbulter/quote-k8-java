@@ -10,7 +10,7 @@ Describe in a markdown document how to create a base K8 project that can be depl
 
 
 Create a markdown file describing the implementation for this endpoint: 
-### 5. GET View History (authenticated)
-GET {{baseUrl}}/api/quote/viewed
-Authorization: Bearer {{authToken}}, 
+### 6. GET Progress (authenticated)
+GET {{baseUrl}}/api/quote/progress
+Authorization: Bearer {{authToken}} 
 by migrating the C# code in quote-azure-k8-backend to Java

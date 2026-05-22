@@ -196,4 +196,18 @@ public class QuoteService {
         LOG.info("Retrieved " + viewedQuotes.size() + " viewed quotes for user " + username);
         return viewedQuotes;
     }
+
+    public Optional<UserProgress> getUserProgress(String username) {
+        LOG.info("Getting user progress for: " + username);
+
+        Optional<UserProgress> progress = userProgressRepository.findByUsername(username);
+
+        if (progress.isPresent()) {
+            LOG.info("User " + username + " progress: lastQuoteId=" + progress.get().lastQuoteId);
+        } else {
+            LOG.info("User " + username + " has no progress record");
+        }
+
+        return progress;
+    }
 }
