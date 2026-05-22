@@ -181,7 +181,7 @@ GET {{baseUrl}}/api/manage/users
 Authorization: Bearer {{authToken}}
 
 ### 21. GET quotes
-GET {{baseUrl}}/api/manage/quotes?page=2&pageSize=50&sortBy=id&sortOrder=asc
+GET {{baseUrl}}/api/manage/quotes?page=1&pageSize=50&sortBy=id&sortOrder=asc
 Authorization: Bearer {{authToken}}
 
 ### 22. FETCH quotes (adds quotes to database)

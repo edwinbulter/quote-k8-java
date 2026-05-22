@@ -32,4 +32,16 @@ public class QuoteRepository implements PanacheMongoRepository<Quote> {
     public boolean existsByText(String quoteText) {
         return count("quoteText", quoteText) > 0;
     }
+
+    public List<Quote> findAllQuotes() {
+        return findAll().list();
+    }
+
+    public List<Quote> findByQuoteTextContainingIgnoreCase(String quoteText) {
+        return find("quoteText like ?1", "%" + quoteText + "%").list();
+    }
+
+    public List<Quote> findByAuthorContainingIgnoreCase(String author) {
+        return find("author like ?1", "%" + author + "%").list();
+    }
 }
