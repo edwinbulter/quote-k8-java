@@ -1,5 +1,6 @@
 package com.quote.k8.service;
 
+import com.quote.k8.dto.AdminUserInfo;
 import com.quote.k8.dto.LoginRequest;
 import com.quote.k8.dto.RegisterRequest;
 import com.quote.k8.model.User;
@@ -10,6 +11,11 @@ import com.quote.k8.util.PasswordUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
+
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AuthService {
@@ -84,5 +90,50 @@ public class AuthService {
         LOG.info("User logged in successfully: " + user.username);
 
         return token;
+    }
+
+    public List<AdminUserInfo> getAllUsers(String adminUsername) {
+        LOG.info("Getting all users for admin: " + adminUsername);
+
+        // Verify admin role
+        if (!userRoleRepository.userHasRole(adminUsername, "ADMIN")) {
+            throw new SecurityException("Only admins can list all users");
+        }
+
+        List<User> users = userRepository.findAllUsers();
+        List<AdminUserInfo> userInfos = new ArrayList<>();
+
+        for (User user : users) {
+            // Get user roles
+            List<UserRole> userRoles = userRoleRepository.findAllByUsername(user.username);
+            List<String> roles = userRoles.stream()
+                    .map(ur -> ur.role != null ? ur.role.toUpperCase() : "")
+                    .filter(r -> !r.isEmpty())
+                    .collect(Collectors.toList());
+
+            // Default to USER role if no roles found
+            if (roles.isEmpty()) {
+                roles.add("USER");
+            }
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            String createDate = user.createdAt != null ? user.createdAt.format(formatter) : null;
+            String lastModifiedDate = user.updatedAt != null ? user.updatedAt.format(formatter) : null;
+
+            AdminUserInfo userInfo = new AdminUserInfo(
+                user.username,
+                user.email,
+                roles,
+                user.isActive,
+                user.isActive ? "ACTIVE" : "INACTIVE",
+                createDate,
+                lastModifiedDate
+            );
+
+            userInfos.add(userInfo);
+        }
+
+        LOG.info("Retrieved " + userInfos.size() + " users");
+        return userInfos;
     }
 }

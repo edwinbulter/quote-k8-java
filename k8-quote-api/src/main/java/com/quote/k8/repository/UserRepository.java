@@ -4,6 +4,7 @@ import com.quote.k8.model.User;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -23,5 +24,9 @@ public class UserRepository implements PanacheMongoRepository<User> {
     
     public boolean existsByEmail(String email) {
         return findByEmail(email).isPresent();
+    }
+    
+    public List<User> findAllUsers() {
+        return findAll().list();
     }
 }

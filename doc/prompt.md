@@ -10,12 +10,7 @@ Describe in a markdown document how to create a base K8 project that can be depl
 
 
 Create a markdown file describing the implementation, deployment and testing (on the local Kind K8 cluster) for this endpoint: 
-### 17. Move Quote ID 3 to position 1
-PUT {{baseUrl}}/api/quote/3/reorder
+### 20. Get all users (admin only)
+GET {{baseUrl}}/api/manage/users
 Authorization: Bearer {{authToken}}
-Content-Type: application/json
-
-{
-  "newPosition": 1
-}
 by migrating the C# code in quote-azure-k8-backend to Java
