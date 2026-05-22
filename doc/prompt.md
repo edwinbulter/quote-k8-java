@@ -8,3 +8,9 @@ Describe in a markdown document how to create a base K8 project that can be depl
 - Run in the cloud with Quarkus Native (GraalVM)
 - As a start, make the endpoint GET {{baseUrl}}/api/quotes/random work by migrating the exact functionality from doc/quote-azure-k8-backend to the new project. This endpoint fetches data from ZenQuotes when the database is empty and stores it in the database, or returns a random quote from the database.
 
+
+Create a markdown file describing the implementation for this endpoint: 
+### 4. GET Quote with authentication (stores LastQuoteId in userprogress)
+GET {{baseUrl}}/api/quote
+Authorization: Bearer {{authToken}}, 
+by migrating the C# code in quote-azure-k8-backend to Java

@@ -2,10 +2,12 @@ package com.quote.k8.resource;
 
 import com.quote.k8.model.Quote;
 import com.quote.k8.service.QuoteService;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -21,6 +23,36 @@ public class QuoteResource {
 
     @Inject
     QuoteService quoteService;
+
+    @Inject
+    JsonWebToken jwt;
+
+    @GET
+    @Path("/quote")
+    @Authenticated
+    public Response getQuote() {
+        try {
+            String username = jwt.getClaim("username");
+            LOG.info("GET /api/quote - Fetching quote for user: " + username);
+
+            if (username == null || username.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid token: username claim missing")
+                        .build();
+            }
+
+            Quote quote = quoteService.getNextQuoteForUser(username);
+            if (quote == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("No quotes available").build();
+            }
+            return Response.ok(quote).build();
+        } catch (Exception e) {
+            LOG.error("Error fetching quote for authenticated user", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error fetching quote: " + e.getMessage())
+                    .build();
+        }
+    }
 
     @GET
     @Path("/quotes/random")

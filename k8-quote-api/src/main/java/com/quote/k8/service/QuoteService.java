@@ -1,13 +1,17 @@
 package com.quote.k8.service;
 
 import com.quote.k8.model.Quote;
+import com.quote.k8.model.UserProgress;
 import com.quote.k8.repository.QuoteRepository;
+import com.quote.k8.repository.UserProgressRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -21,6 +25,9 @@ public class QuoteService {
 
     @Inject
     ZenQuotesService zenQuotesService;
+
+    @Inject
+    UserProgressRepository userProgressRepository;
 
     public Quote getRandomQuote() {
         return getRandomQuote(new HashSet<>());
@@ -70,6 +77,65 @@ public class QuoteService {
         }
         
         return filteredQuotes.get(random.nextInt(filteredQuotes.size()));
+    }
+
+    public Quote getNextQuoteForUser(String username) {
+        LOG.info("Getting next sequential quote for user: " + username);
+
+        Optional<UserProgress> progressOpt = userProgressRepository.findByUsername(username);
+        int nextQuoteId;
+
+        if (progressOpt.isEmpty()) {
+            nextQuoteId = 1;
+            LOG.info("New user " + username + " starting with quote ID: " + nextQuoteId);
+        } else {
+            nextQuoteId = progressOpt.get().lastQuoteId + 1;
+            LOG.info("User " + username + " progress: lastQuoteId=" + progressOpt.get().lastQuoteId + ", nextQuoteId=" + nextQuoteId);
+        }
+
+        // Fetch more quotes if needed
+        int maxId = quoteRepository.getMaxQuoteId();
+        if (nextQuoteId > maxId) {
+            LOG.info("Next quote ID " + nextQuoteId + " exceeds max ID " + maxId + ", fetching more quotes");
+            fetchMoreQuotesIfNeeded();
+            maxId = quoteRepository.getMaxQuoteId();
+        }
+
+        // Get the quote by ID, find next available if missing
+        Optional<Quote> quoteOpt = quoteRepository.findByQuoteId(nextQuoteId);
+        Quote quote = quoteOpt.orElseGet(() -> findNextAvailableQuote(nextQuoteId));
+
+        if (quote == null) {
+            LOG.warn("No quote found starting from ID: " + nextQuoteId);
+            throw new IllegalStateException("No quotes available");
+        }
+
+        // Update user progress
+        updateUserProgress(username, quote.quoteId, progressOpt.orElse(null));
+        LOG.info("Updated user " + username + " progress to lastQuoteId=" + quote.quoteId);
+
+        return quote;
+    }
+
+    private Quote findNextAvailableQuote(int startId) {
+        int maxId = quoteRepository.getMaxQuoteId();
+        for (int id = startId; id <= maxId; id++) {
+            Optional<Quote> quote = quoteRepository.findByQuoteId(id);
+            if (quote.isPresent()) {
+                return quote.get();
+            }
+        }
+        return null;
+    }
+
+    private void updateUserProgress(String username, int quoteId, UserProgress existing) {
+        if (existing == null) {
+            userProgressRepository.persist(new UserProgress(username, quoteId));
+        } else {
+            existing.lastQuoteId = quoteId;
+            existing.updatedAt = LocalDateTime.now();
+            userProgressRepository.update(existing);
+        }
     }
 
     private void fetchMoreQuotesIfNeeded() {

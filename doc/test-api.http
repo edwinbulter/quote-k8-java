@@ -58,8 +58,8 @@ Content-Type: application/json
 }
 
 > {%
-    const responseBody = JSON.parse(response.body);
-    client.global.set("authToken", responseBody.token);
+    //const responseBody = JSON.parse(response.body);
+    client.global.set("authToken", response.body.token);
 %}
 
 ### 0.3 Login as admin to get admin JWT token
