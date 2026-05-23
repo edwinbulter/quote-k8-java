@@ -12,7 +12,7 @@ This plan deploys the React frontend to the kind Kubernetes cluster using a prod
 ### 0. Install NGINX Ingress Controller in Kind Cluster
 Install NGINX Ingress Controller:
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.1/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/kind/deploy.yaml
 ```
 Wait for the ingress controller to be ready:
 ```bash
@@ -23,12 +23,12 @@ kubectl wait --namespace ingress-nginx \
 ```
 
 ### 1. Create Containerfile for Frontend
-Create a multi-stage Containerfile in `k8-quote-frontend/`:
-- **Stage 1 (Build)**: Use Node.js image to run `npm run build` and create production static files
-- **Stage 2 (Serve)**: Use nginx alpine image to serve static files
-- Copy built files from stage 1 to nginx html directory
-- Configure nginx to handle client-side routing (SPA fallback)
+Create a single-stage Dockerfile in `k8-quote-frontend/`:
+- Use nginx alpine image to serve static files
+- Copy local `dist` directory (built separately) to nginx html directory
+- Copy nginx configuration for SPA routing and API proxy
 - Expose port 80
+- Note: Build is done locally with `npm run build` to avoid Docker build issues with platform-specific dependencies
 
 ### 2. Create Kubernetes Deployment Manifest
 Create `k8/local/deployment-frontend.yaml`:
@@ -53,16 +53,21 @@ Create `k8/local/ingress.yaml`:
 - Two host/path rules:
   - `/` → quote-frontend-service:80
   - `/api` → quote-api-service:80
+- **Important**: Do NOT add `nginx.ingress.kubernetes.io/rewrite-target` annotation, as it will break API routing
 - This allows both frontend and API to be accessed through the same ingress
 
 ### 5. Update Frontend API Configuration
-Modify `vite.config.ts` or create production configuration:
-- Remove or modify proxy configuration (not needed in production)
-- Ensure API calls use relative paths (`/api/*`) which will be routed through ingress to the API service
-- Alternatively, set environment variable for API base URL
+Modify `src/constants/constants.tsx`:
+- Change default BASE_URL from `http://localhost:7071` to `/api`
+- This ensures API calls use relative paths that will be routed through ingress to the API service
+- The vite dev proxy configuration is not used in production
 
-### 6. Build Docker Image
-Run build command in `k8-quote-frontend/`:
+### 6. Build Frontend and Docker Image
+First build the React application locally in `k8-quote-frontend/`:
+```bash
+npm run build
+```
+Then build the Docker image:
 ```bash
 docker build -t quote-frontend:latest .
 ```
@@ -85,6 +90,9 @@ kubectl apply -f k8/local/ingress.yaml
 - Access frontend via ingress controller URL (typically localhost for kind)
 
 ## Notes
-- If ingress controller is not installed, you'll need to install NGINX Ingress Controller first
+- If ingress controller is not installed, you'll need to install NGINX Ingress Controller first (use v1.11.2 for kind)
 - The ingress configuration routes both frontend and API traffic, simplifying the setup
 - Frontend will communicate with API via the ingress `/api` path, which internally routes to the API service
+- Build is done locally with `npm run build` before Docker build to avoid platform-specific dependency issues
+- Do not use `nginx.ingress.kubernetes.io/rewrite-target` annotation in ingress, as it breaks API routing
+- The nginx.conf in the frontend container proxies `/api` requests to the API service internally
