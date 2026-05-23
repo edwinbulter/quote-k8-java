@@ -1,0 +1,289 @@
+.app {
+  width: 100vw;
+  height: 100vh;
+  background-color: yellow;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.quoteView {
+  position: absolute;
+  top: 0;
+  left: 141px;
+  width: calc(100vw - 161px);
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 60vh;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: black;
+
+  &.fullHeight {
+    height: 100vh;
+  }
+
+  &.fullWidth {
+    @media (max-width: 768px) {
+      left: 0;
+      width: 100vw;
+      padding-left: 15px;
+      padding-right: 15px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 480px) {
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+  }
+}
+
+.author {
+  font-size: calc(10px + 1vmin);
+}
+
+.buttonBar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  height: 100%;
+  width: 140px;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  &.hideOnNarrow {
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+}
+
+.logo {
+  position: relative;
+  top: 20px;
+  left: 15px;
+}
+
+.logo-header {
+  font-weight: bold;
+  font-size: 7px;
+  position: absolute;
+  height: 30px;
+  width: 90px;
+  top: 13px;
+  left: 8px;
+  color: black;
+}
+
+.logo-main {
+  font-weight: 800;
+  font-size: 35px;
+  position: absolute;
+  height: 80px;
+  width: 80px;
+  top:0;
+  left:0;
+  color: green;
+}
+
+.userInitial {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: green;
+  background-color: #e8f5e9;
+  border-radius: 50%;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.userInitial:hover {
+  background-color: #c8e6c9;
+  transform: translateX(-50%) scale(1.1);
+}
+
+.basicButton {
+  position: absolute;
+  width: 100px;
+  height: 40px;
+  background-color: green;
+  border: 0;
+  padding: 2px;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+.basicButton:hover {
+  background-color: lightgray;
+  cursor: pointer;
+}
+
+.basicButton:disabled {
+  background-color: #c9f6cd;
+}
+
+.newQuoteButton {
+  @extend .basicButton;
+  top: 140px;
+  left: 20px;
+}
+
+.likeButton {
+  @extend .basicButton;
+  top: 200px;
+  left: 20px;
+}
+
+.previousButton {
+  @extend .basicButton;
+  top: 260px;
+  left: 20px;
+}
+
+.nextButton {
+  @extend .basicButton;
+  top: 320px;
+  left: 20px;
+}
+
+.firstButton {
+  @extend .basicButton;
+  top: 380px;
+  left: 20px;
+}
+
+.lastButton {
+  @extend .basicButton;
+  top: 440px;
+  left: 20px;
+}
+
+.manageButton {
+  @extend .basicButton;
+  top: 500px;
+  left: 20px;
+}
+
+.signinButton {
+  @extend .basicButton;
+  top: 560px;
+  left: 20px;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px 20px;
+  width: 90%;
+  max-width: 400px;
+  margin: 0 auto;
+
+  h2 {
+    color: green;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+  .profile-info {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    text-align: left;
+
+    p {
+      margin: 10px 0;
+      font-size: 18px;
+      line-height: 1.6;
+
+      strong {
+        color: green;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .signOutButton {
+      background-color: #dc3545;
+      color: white;
+
+      &:hover {
+        background-color: #c82333;
+      }
+    }
+
+    .cancelButton {
+      background-color: #6c757d;
+      color: white;
+
+      &:hover {
+        background-color: #5a6268;
+      }
+    }
+  }
+
+  // Mobile responsiveness
+  @media (max-width: 480px) {
+    width: 95%;
+    padding: 20px 15px;
+    gap: 15px;
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .profile-info {
+      padding: 15px;
+
+      p {
+        font-size: 16px;
+        margin: 8px 0;
+      }
+    }
+
+    .profile-actions {
+      flex-direction: column;
+      width: 100%;
+      gap: 10px;
+
+      button {
+        width: 100%;
+        padding: 10px 20px;
+        font-size: 15px;
+      }
+    }
+  }
+}

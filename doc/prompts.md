@@ -21,4 +21,4 @@ Content-Type: application/json
 by migrating the C# code in quote-azure-k8-backend to Java
 
 ## API migration prompt 2
-Do everything as described in unregister-implementation.md
+Do everything as described in 04-get-quote-by-id-implementation.md

@@ -85,6 +85,11 @@ public class QuoteService {
         return filteredQuotes.get(random.nextInt(filteredQuotes.size()));
     }
 
+    public Optional<Quote> getQuoteById(Integer quoteId) {
+        LOG.info("Getting quote by ID: " + quoteId);
+        return quoteRepository.findByQuoteId(quoteId);
+    }
+
     public Quote getNextQuoteForUser(String username) {
         LOG.info("Getting next sequential quote for user: " + username);
 

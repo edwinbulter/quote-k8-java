@@ -91,6 +91,9 @@ Content-Type: application/json
 ### 1. GET Random Quote (unauthenticated - no view recording)
 GET {{baseUrl}}/api/quotes/random
 
+### 1b GET Quote 1 (unauthenticated - no view recording)
+GET {{baseUrl}}/api/quotes/2
+
 ### 2. POST Quote with exclusions (unauthenticated)
 POST {{baseUrl}}/api/quote
 Content-Type: application/json

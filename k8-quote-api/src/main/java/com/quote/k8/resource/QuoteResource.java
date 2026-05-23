@@ -266,4 +266,26 @@ public class QuoteResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/quotes/{id}")
+    public Response getQuoteById(@PathParam("id") Integer id) {
+        try {
+            LOG.info("GET /api/quotes/" + id + " - Fetching quote by ID");
+            
+            var quoteOpt = quoteService.getQuoteById(id);
+            if (quoteOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Quote not found with ID: " + id)
+                        .build();
+            }
+            
+            return Response.ok(quoteOpt.get()).build();
+        } catch (Exception e) {
+            LOG.error("Error fetching quote by ID: " + id, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error fetching quote: " + e.getMessage())
+                    .build();
+        }
+    }
 }
