@@ -38,9 +38,9 @@ export async function withRetry<T>(
       
       // Only retry on 500 errors or network errors
       if (error instanceof Error) {
-        const isServerError = error.message.includes('500') || 
+        const isServerError = error.message.includes('500') ||
                             error.message.includes('Internal Server Error') ||
-                            (error.message.includes('Failed to fetch') && !error.message.includes('400') && !error.message.includes('403') && !error.message.includes('404')) ||
+                            (error.message.includes('Failed to fetch') && !error.message.includes('400') && !error.message.includes('401') && !error.message.includes('403') && !error.message.includes('404')) ||
                             error.message.includes('Network request failed') ||
                             error.message.includes('CORS') ||
                             error.message.includes('blocked by CORS policy') ||
@@ -53,7 +53,7 @@ export async function withRetry<T>(
                             error.message.includes('timeout') ||
                             error.message.includes('NetworkError') ||
                             error.message.includes('fetch failed');
-        
+
         if (!isServerError || (opts.maxRetries !== Infinity && attempt > opts.maxRetries)) {
           throw error;
         }
