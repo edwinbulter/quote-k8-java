@@ -17,3 +17,4 @@ target/
 .env
 .env.local
 .env.*.local
+scripts/set-scaleway-env.sh
