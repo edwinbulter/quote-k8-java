@@ -10,3 +10,6 @@ data:
     quarkus.mongodb.connection-string=mongodb://quote-user:ChangeThisPassword123!@mongodb-service:27017/quote-db?authSource=admin
     quarkus.mongodb.database=quote-db
     quarkus.log.category."com.quote".level=INFO
+    quarkus.smallrye-health.root-path=/q/health
+    quarkus.smallrye-health.liveness.enabled=true
+    quarkus.smallrye-health.readiness.enabled=true

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: quote-frontend
-          image: ghcr.io/YOUR_USERNAME/quote-frontend:latest
+          image: ghcr.io/edwinbulter/quote-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80

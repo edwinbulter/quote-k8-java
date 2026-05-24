@@ -61,7 +61,7 @@ source ~/.bashrc
 ```bash
 cd k8-quote-api
 mvn clean package -DskipTests
-podman build -f Containerfile.jvm -t ghcr.io/YOUR_USERNAME/quote-api:latest-jvm .
+podman build --platform linux/amd64 -f Containerfile.jvm -t ghcr.io/YOUR_USERNAME/quote-api:latest-jvm .
 podman login ghcr.io -u YOUR_USERNAME -p YOUR_TOKEN
 podman push ghcr.io/YOUR_USERNAME/quote-api:latest-jvm
 ```
@@ -73,9 +73,9 @@ The frontend already has a Dockerfile that expects the dist directory to be buil
 ```bash
 cd k8-quote-frontend
 npm run build
-podman build -t ghcr.io/YOUR_USERNAME/quote-frontend:latest .
-podman login ghcr.io -u YOUR_USERNAME -p YOUR_TOKEN
-podman push ghcr.io/YOUR_USERNAME/quote-frontend:latest
+podman build --platform linux/amd64 -t ghcr.io/edwinbulter/quote-frontend:latest .
+podman login ghcr.io -u edwinbulter -p YOUR_TOKEN
+podman push ghcr.io/edwinbulter/quote-frontend:latest
 ```
 
 ## Scaleway Kapsule Cluster Creation
@@ -89,7 +89,7 @@ The setup script can create a cluster automatically, or you can create it manual
 scw k8s cluster create \
   name=quote-k8-java-cluster \
   region=fr-par \
-  version=1.29.1 \
+  version=1.35.3 \
   cni=cilium
 ```
 
@@ -103,7 +103,7 @@ scw k8s pool create \
   cluster-id=<cluster-id> \
   name=default-pool \
   node-type=PLAY2-NANO \
-  size=1:1 \
+  size=1 \
   region=fr-par
 ```
 
@@ -145,7 +145,7 @@ export FLEXIBLE_IP="your-flexible-ip"
 # Optional: Customize cluster settings
 export CLUSTER_NAME="quote-k8-java-cluster"
 export REGION="fr-par"
-export K8S_VERSION="1.29.1"
+export K8S_VERSION="1.35.3"
 export NODE_TYPE="PLAY2-NANO"
 export MIN_NODES="1"
 export MAX_NODES="1"

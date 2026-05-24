@@ -2,17 +2,21 @@
 
 set -e
 
+# Change to project root directory
+cd "$(dirname "$0")/.."
+
 # Configuration
 NAMESPACE="quote-k8-java"
 CLUSTER_NAME="${CLUSTER_NAME:-quote-k8-java-cluster}"
 REGION="${REGION:-fr-par}"
-K8S_VERSION="${K8S_VERSION:-1.29.1}"
+K8S_VERSION="${K8S_VERSION:-1.35.3}"
 NODE_TYPE="${NODE_TYPE:-PLAY2-NANO}"
 MIN_NODES="${MIN_NODES:-1}"
 MAX_NODES="${MAX_NODES:-1}"
 GITHUB_USERNAME="${GITHUB_USERNAME:-YOUR_USERNAME}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-YOUR_TOKEN}"
 DOMAIN="${DOMAIN:-YOUR_DOMAIN.COM}"
+EMAIL="${EMAIL:-your-email@example.com}"
 FLEXIBLE_IP="${FLEXIBLE_IP:-}"
 
 # Load environment variables from separate script if it exists
@@ -64,15 +68,30 @@ else
     echo "✓ Cluster created with ID: $CLUSTER_ID"
     echo ""
 
-    # Add node pool
+    # Add node pool immediately (cluster won't become ready without it)
     echo "Adding node pool..."
-    scw k8s pool create \
-        cluster-id="$CLUSTER_ID" \
-        name=default-pool \
-        node-type="$NODE_TYPE" \
-        size="$MIN_NODES:$MAX_NODES" \
-        region="$REGION"
-    echo "✓ Node pool added"
+    retry_count=0
+    max_retries=5
+    while [ $retry_count -lt $max_retries ]; do
+        if scw k8s pool create \
+            cluster-id="$CLUSTER_ID" \
+            name=default-pool \
+            node-type="$NODE_TYPE" \
+            size="$MIN_NODES" \
+            region="$REGION" 2>/dev/null; then
+            echo "✓ Node pool added"
+            break
+        else
+            retry_count=$((retry_count + 1))
+            if [ $retry_count -lt $max_retries ]; then
+                echo "  Cluster still initializing, retrying in 10 seconds... (attempt $retry_count/$max_retries)"
+                sleep 10
+            else
+                echo "ERROR: Failed to add node pool after $max_retries attempts"
+                exit 1
+            fi
+        fi
+    done
     echo ""
 
     # Wait for cluster to be ready
@@ -95,6 +114,26 @@ scw k8s kubeconfig get "$CLUSTER_ID" region="$REGION" > kubeconfig
 export KUBECONFIG=$(pwd)/kubeconfig
 echo "✓ Kubeconfig downloaded"
 echo ""
+
+# Add Scaleway context to kubectl config
+echo "Adding Scaleway context to kubectl config..."
+KUBECONFIG=kubeconfig kubectl config current-context > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    # Merge the Scaleway kubeconfig with user's default kubeconfig
+    KUBECONFIG=kubeconfig:$HOME/.kube/config kubectl config view --flatten > /tmp/merged-kubeconfig
+    mv /tmp/merged-kubeconfig $HOME/.kube/config
+    echo "✓ Scaleway context added to kubectl config"
+    echo ""
+    echo "To switch to Scaleway cluster:"
+    echo "  kubectl config use-context <scaleway-context-name>"
+    echo ""
+    echo "To list all contexts:"
+    echo "  kubectl config get-contexts"
+    echo ""
+else
+    echo "⚠ Could not merge kubeconfig. Use: export KUBECONFIG=$(pwd)/kubeconfig"
+    echo ""
+fi
 
 # Check if kubectl is configured
 if ! kubectl cluster-info &> /dev/null; then
@@ -122,6 +161,12 @@ kubectl create secret docker-registry ghcr-secret \
     --docker-password="$GITHUB_TOKEN" \
     -n "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 echo "✓ Secrets created"
+echo ""
+
+# Create ConfigMap
+echo "Creating ConfigMap..."
+kubectl apply -f k8/scaleway/configmap.yaml
+echo "✓ ConfigMap created"
 echo ""
 
 # Deploy MongoDB
@@ -218,7 +263,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: your-email@example.com
+    email: $EMAIL
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
