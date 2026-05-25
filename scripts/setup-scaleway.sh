@@ -111,37 +111,25 @@ fi
 # Download kubeconfig
 echo "Downloading kubeconfig..."
 scw k8s kubeconfig get "$CLUSTER_ID" region="$REGION" > kubeconfig
-export KUBECONFIG=$(pwd)/kubeconfig
-echo "✓ Kubeconfig downloaded"
+KUBECONFIG_FILE=$(pwd)/kubeconfig
+export KUBECONFIG="$KUBECONFIG_FILE"
+echo "✓ Kubeconfig downloaded to: $KUBECONFIG_FILE"
 echo ""
 
-# Add Scaleway context to kubectl config
-echo "Adding Scaleway context to kubectl config..."
-KUBECONFIG=kubeconfig kubectl config current-context > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-    # Merge the Scaleway kubeconfig with user's default kubeconfig
-    KUBECONFIG=kubeconfig:$HOME/.kube/config kubectl config view --flatten > /tmp/merged-kubeconfig
-    mv /tmp/merged-kubeconfig $HOME/.kube/config
-    echo "✓ Scaleway context added to kubectl config"
-    echo ""
-    echo "To switch to Scaleway cluster:"
-    echo "  kubectl config use-context <scaleway-context-name>"
-    echo ""
-    echo "To list all contexts:"
-    echo "  kubectl config get-contexts"
-    echo ""
-else
-    echo "⚠ Could not merge kubeconfig. Use: export KUBECONFIG=$(pwd)/kubeconfig"
-    echo ""
-fi
+# Verify we're connected to the correct cluster
+CURRENT_CONTEXT=$(kubectl config current-context)
+echo "Using kubectl context: $CURRENT_CONTEXT"
+echo "KUBECONFIG: $KUBECONFIG_FILE"
+echo ""
 
-# Check if kubectl is configured
+# Check if kubectl is configured with Scaleway cluster
 if ! kubectl cluster-info &> /dev/null; then
-    echo "ERROR: kubectl is not configured or cluster is not accessible"
+    echo "ERROR: kubectl is not configured or Scaleway cluster is not accessible"
+    echo "KUBECONFIG: $KUBECONFIG_FILE"
     exit 1
 fi
 
-echo "✓ kubectl is configured"
+echo "✓ kubectl is configured with Scaleway cluster"
 echo ""
 
 # Create namespace

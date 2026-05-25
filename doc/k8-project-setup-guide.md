@@ -114,12 +114,14 @@ helm search repo mongodb
 
 ```bash
 # Install the MongoDB Community Operator using Helm
-helm install mongodb-operator mongodb/mongodb-community-operator \
+helm install mongodb-operator mongodb/community-operator \
   --namespace quote-k8-java \
-  --context=kind-multi-node-cluster \
+  --create-namespace \
   --set operator.createOperatorResource=true \
   --set operator.watchNamespace=quote-k8-java
+```
 
+```bash
 # Verify the operator is running
 kubectl get pods -n quote-k8-java --context=kind-multi-node-cluster
 ```
@@ -840,12 +842,14 @@ CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
 ```bash
 # Build the application
 mvn clean package -DskipTests
+```
 
-# Build container image for Kind
-podman build -f Containerfile.jvm -t quote-api:latest-jvm .
+```bash
+docker build --platform linux/arm64 -f Containerfile.jvm -t quote-api:latest-jvm .
+```
 
-# Load image into Kind cluster
-kind load image-archive quote-api:latest-jvm --name kind-multi-node-cluster
+```bash
+kind load docker-image quote-api:latest-jvm --name multi-node-cluster
 ```
 
 ### 12.2 Deploy to Kind

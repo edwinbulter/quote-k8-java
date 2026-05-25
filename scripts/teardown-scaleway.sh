@@ -6,17 +6,33 @@ set -e
 NAMESPACE="quote-k8-java"
 CLUSTER_NAME="${CLUSTER_NAME:-quote-k8-java-cluster}"
 REGION="${REGION:-fr-par}"
+KUBECONFIG_FILE="$(dirname "$0")/../kubeconfig"
+export KUBECONFIG="$KUBECONFIG_FILE"
 
 echo "=========================================="
 echo "Scaleway Kapsule Teardown Script"
 echo "=========================================="
 echo ""
 
-# Check if kubectl is configured
-if ! kubectl cluster-info &> /dev/null; then
-    echo "ERROR: kubectl is not configured or cluster is not accessible"
+# Check if Scaleway kubeconfig exists
+if [ ! -f "$KUBECONFIG_FILE" ]; then
+    echo "ERROR: Scaleway kubeconfig not found at $KUBECONFIG_FILE"
+    echo "Please run the setup script first to download the kubeconfig"
     exit 1
 fi
+
+# Check if kubectl is configured with Scaleway cluster
+if ! kubectl cluster-info &> /dev/null; then
+    echo "ERROR: kubectl is not configured or Scaleway cluster is not accessible"
+    echo "KUBECONFIG: $KUBECONFIG_FILE"
+    exit 1
+fi
+
+# Verify we're connected to the correct cluster
+CURRENT_CONTEXT=$(kubectl config current-context)
+echo "Using kubectl context: $CURRENT_CONTEXT"
+echo "KUBECONFIG: $KUBECONFIG_FILE"
+echo ""
 
 echo "This script will delete all resources in namespace: $NAMESPACE"
 echo ""
@@ -98,6 +114,73 @@ if [ "$delete_cluster" = "yes" ]; then
     scw k8s cluster delete "$CLUSTER_ID" region="$REGION"
     echo "✓ Cluster deleted"
     echo ""
+    
+    # Wait for cluster to be fully deleted
+    echo "Waiting for cluster to be fully deleted..."
+    while scw k8s cluster get "$CLUSTER_ID" region="$REGION" &> /dev/null; do
+        echo "  Cluster still deleting..."
+        sleep 5
+    done
+    echo "✓ Cluster fully deleted"
+    echo ""
+    
+    # Delete Load Balancers
+    echo "Deleting Load Balancers..."
+    ZONE="${REGION}-1"
+    LB_IDS=$(scw lb lb list zone="$ZONE" -o json | jq -r '.[].id // empty')
+    if [ -n "$LB_IDS" ]; then
+        for LB_ID in $LB_IDS; do
+            echo "  Deleting Load Balancer: $LB_ID"
+            scw lb lb delete "$LB_ID" zone="$ZONE" release-ip=true &> /dev/null || true
+        done
+        echo "✓ Load Balancers deleted"
+    else
+        echo "  No Load Balancers found"
+    fi
+    echo ""
+    
+    # Delete IPAM IPs
+    echo "Deleting IPAM IPs..."
+    IP_IDS=$(scw ipam ip list region="$REGION" -o json | jq -r '.[].id // empty')
+    if [ -n "$IP_IDS" ]; then
+        for IP_ID in $IP_IDS; do
+            echo "  Deleting IP: $IP_ID"
+            scw ipam ip delete "$IP_ID" region="$REGION" &> /dev/null || true
+        done
+        echo "✓ IPAM IPs deleted"
+    else
+        echo "  No IPAM IPs found"
+    fi
+    echo ""
+    
+    # Delete Private Networks
+    echo "Deleting Private Networks..."
+    PN_IDS=$(scw vpc private-network list region="$REGION" -o json | jq -r '.[].id // empty')
+    if [ -n "$PN_IDS" ]; then
+        for PN_ID in $PN_IDS; do
+            echo "  Deleting Private Network: $PN_ID"
+            scw vpc private-network delete "$PN_ID" region="$REGION" &> /dev/null || true
+        done
+        echo "✓ Private Networks deleted"
+    else
+        echo "  No Private Networks found"
+    fi
+    echo ""
+    
+    # Delete VPCs
+    echo "Deleting VPCs..."
+    VPC_IDS=$(scw vpc vpc list region="$REGION" -o json | jq -r '.[].id // empty')
+    if [ -n "$VPC_IDS" ]; then
+        for VPC_ID in $VPC_IDS; do
+            echo "  Deleting VPC: $VPC_ID"
+            scw vpc vpc delete "$VPC_ID" region="$REGION" &> /dev/null || true
+        done
+        echo "✓ VPCs deleted"
+    else
+        echo "  No VPCs found"
+    fi
+    echo ""
+    
     echo "After cluster deletion, costs will be €0/month"
 else
     echo ""
