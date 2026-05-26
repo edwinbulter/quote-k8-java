@@ -6,7 +6,7 @@ set -e
 cd "$(dirname "$0")/.."
 
 # Configuration
-NAMESPACE="quote-k8-java"
+NAMESPACE="scaleway-quote-k8"
 CLUSTER_NAME="${CLUSTER_NAME:-quote-k8-java-cluster}"
 REGION="${REGION:-fr-par}"
 K8S_VERSION="${K8S_VERSION:-1.35.3}"

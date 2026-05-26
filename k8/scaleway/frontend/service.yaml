@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: quote-frontend-service
-  namespace: quote-k8-java
+  namespace: scaleway-quote-k8
 spec:
   selector:
     app: quote-frontend

@@ -3,7 +3,7 @@
 set -e
 
 # Configuration
-NAMESPACE="quote-k8-java"
+NAMESPACE="scaleway-quote-k8"
 CLUSTER_NAME="${CLUSTER_NAME:-quote-k8-java-cluster}"
 REGION="${REGION:-fr-par}"
 KUBECONFIG_FILE="$(dirname "$0")/../kubeconfig"

@@ -188,16 +188,16 @@ If using a flexible IP, point your DNS to that IP instead.
 
 ```bash
 # Check pods
-kubectl get pods -n quote-k8-java
+kubectl get pods -n scaleway-quote-k8
 
 # Check services
-kubectl get svc -n quote-k8-java
+kubectl get svc -n scaleway-quote-k8
 
 # Check ingress
-kubectl get ingress -n quote-k8-java
+kubectl get ingress -n scaleway-quote-k8
 
 # Check certificate
-kubectl get certificate -n quote-k8-java
+kubectl get certificate -n scaleway-quote-k8
 
 # Test HTTPS access
 curl https://your-domain.com
@@ -262,18 +262,18 @@ If pods fail to pull images:
 
 ```bash
 # Check secret exists
-kubectl get secret ghcr-secret -n quote-k8-java
+kubectl get secret ghcr-secret -n scaleway-quote-k8
 
 # Verify secret
-kubectl describe secret ghcr-secret -n quote-k8-java
+kubectl describe secret ghcr-secret -n scaleway-quote-k8
 
 # Recreate secret if needed
-kubectl delete secret ghcr-secret -n quote-k8-java
+kubectl delete secret ghcr-secret -n scaleway-quote-k8
 kubectl create secret docker-registry ghcr-secret \
     --docker-server=ghcr.io \
     --docker-username=YOUR_USERNAME \
     --docker-password=YOUR_TOKEN \
-    -n quote-k8-java
+    -n scaleway-quote-k8
 ```
 
 ### Certificate Issues
@@ -282,25 +282,25 @@ If TLS certificate fails to issue:
 
 ```bash
 # Check certificate status
-kubectl get certificate -n quote-k8-java
-kubectl describe certificate quote-tls-secret -n quote-k8-java
+kubectl get certificate -n scaleway-quote-k8
+kubectl describe certificate quote-tls-secret -n scaleway-quote-k8
 
 # Check cert-manager logs
 kubectl logs -n cert-manager -l app=cert-manager
 
 # Check ingress
-kubectl describe ingress quote-ingress -n quote-k8-java
+kubectl describe ingress quote-ingress -n scaleway-quote-k8
 ```
 
 ### MongoDB Connection Issues
 
 ```bash
 # Check MongoDB pod
-kubectl get pods -n quote-k8-java -l app=mongodb
-kubectl logs -n quote-k8-java -l app=mongodb
+kubectl get pods -n scaleway-quote-k8 -l app=mongodb
+kubectl logs -n scaleway-quote-k8 -l app=mongodb
 
 # Test connection from backend pod
-kubectl exec -it <backend-pod> -n quote-k8-java -- sh
+kubectl exec -it <backend-pod> -n scaleway-quote-k8 -- sh
 # Inside pod:
 # nc -zv mongodb-service 27017
 ```
