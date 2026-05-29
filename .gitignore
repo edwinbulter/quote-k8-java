@@ -18,4 +18,4 @@ target/
 .env.local
 .env.*.local
 scripts/set-scaleway-env.sh
-kubeconfig
+k8/scaleway/kubeconfig

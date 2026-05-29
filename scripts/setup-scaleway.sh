@@ -96,13 +96,26 @@ else
 
     # Wait for cluster to be ready
     echo "Waiting for cluster to be ready..."
+    timeout=600  # 10 minutes timeout
+    elapsed=0
     while true; do
         STATUS=$(scw k8s cluster get "$CLUSTER_ID" region="$REGION" -o json | jq -r '.status')
-        if [ "$STATUS" = "ready" ]; then
+        # Convert to lowercase for case-insensitive comparison
+        STATUS_LOWER=$(echo "$STATUS" | tr '[:upper:]' '[:lower:]')
+        # Check for ready status (also check for 'running' as some APIs use this)
+        if [ "$STATUS_LOWER" = "ready" ] || [ "$STATUS_LOWER" = "running" ]; then
             break
         fi
         echo "  Current status: $STATUS (waiting...)"
         sleep 10
+        elapsed=$((elapsed + 10))
+        if [ $elapsed -ge $timeout ]; then
+            echo "ERROR: Timeout waiting for cluster to be ready"
+            echo "Current status: $STATUS"
+            echo "The cluster may be ready in the portal but the API is still reporting '$STATUS'"
+            echo "You can continue the script by re-running it - it will use the existing cluster."
+            exit 1
+        fi
     done
     echo "✓ Cluster is ready"
     echo ""
@@ -110,8 +123,9 @@ fi
 
 # Download kubeconfig
 echo "Downloading kubeconfig..."
-scw k8s kubeconfig get "$CLUSTER_ID" region="$REGION" > kubeconfig
-KUBECONFIG_FILE=$(pwd)/kubeconfig
+mkdir -p k8/scaleway
+scw k8s kubeconfig get "$CLUSTER_ID" region="$REGION" > k8/scaleway/kubeconfig
+KUBECONFIG_FILE=$(pwd)/k8/scaleway/kubeconfig
 export KUBECONFIG="$KUBECONFIG_FILE"
 echo "✓ Kubeconfig downloaded to: $KUBECONFIG_FILE"
 echo ""

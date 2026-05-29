@@ -6,7 +6,7 @@ set -e
 NAMESPACE="scaleway-quote-k8"
 CLUSTER_NAME="${CLUSTER_NAME:-quote-k8-java-cluster}"
 REGION="${REGION:-fr-par}"
-KUBECONFIG_FILE="$(dirname "$0")/../kubeconfig"
+KUBECONFIG_FILE="$(dirname "$0")/../k8/scaleway/kubeconfig"
 export KUBECONFIG="$KUBECONFIG_FILE"
 
 echo "=========================================="
