@@ -24,7 +24,8 @@ This project was created with the following goals:
 
 ## Getting Started
 
-See the documentation in the `doc/` directory for detailed setup and deployment instructions:
+See the documentation in the `doc/` directory:
 
+- [`doc/architecture.md`](doc/architecture.md) — how the components fit together, data model, API surface, and deployment topologies
 - [`doc/local-kind-setup.md`](doc/local-kind-setup.md) — build the Docker images and install/remove the app in a local kind cluster
 - [`doc/scaleway-deployment-guide.md`](doc/scaleway-deployment-guide.md) — deploy the app to Scaleway

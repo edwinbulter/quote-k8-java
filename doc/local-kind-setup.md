@@ -2,7 +2,7 @@
 
 Quick day-to-day workflow for building the app and running it in the local `single-node` kind cluster (context `kind-single-node`).
 
-This is different from `doc/k8-project-setup-guide.md`, which is a detailed walkthrough of building the project from scratch and uses the MongoDB Community Operator. This guide uses a plain `mongo:7.0` Deployment instead (no Helm/operator bootstrap needed) and two scripts that install or remove everything in one command — meant for quickly spinning the app up and tearing it down while iterating locally.
+This guide uses a plain `mongo:7.0` Deployment (no Helm/operator bootstrap needed) and two scripts that install or remove everything in one command — meant for quickly spinning the app up and tearing it down while iterating locally. See [`architecture.md`](architecture.md) for how the components fit together and why a plain MongoDB Deployment was chosen over the MongoDB Community Operator here.
 
 ## Prerequisites
 
