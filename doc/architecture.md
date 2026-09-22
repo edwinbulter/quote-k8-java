@@ -1,6 +1,6 @@
 # Architecture
 
-A reference for how `quote-k8-java` is built today: what each component does, how they talk to each other, the data model, and how the same system is deployed across three different environments. For step-by-step setup/deploy instructions, see [`local-kind-setup.md`](local-kind-setup.md) and [`scaleway-deployment-guide.md`](scaleway-deployment-guide.md).
+A reference for how `quote-k8-java` is built today: what each component does, how they talk to each other, the data model, and how the same system is deployed across two different environments. For step-by-step setup/deploy instructions, see [`local-kind-setup.md`](local-kind-setup.md) and [`scaleway-deployment-guide.md`](scaleway-deployment-guide.md).
 
 ## Components
 
@@ -92,9 +92,7 @@ The same components are assembled two different ways today, driven entirely by w
 | Ingress/TLS | plain nginx Ingress, no TLS | nginx Ingress + cert-manager + Let's Encrypt |
 | Driven by | `scripts/setup-kind.sh` / `teardown-kind.sh` | `scripts/setup-scaleway.sh` / `teardown-scaleway.sh` |
 
-Both use a plain MongoDB Deployment rather than the MongoDB Community Operator — no Helm/CRD bootstrap needed, which is the right tradeoff for a single, non-HA instance (see "why not the operator" note below).
-
-`k8s/base/` and `k8s/mongodb/` (a `MongoDBCommunity` CRD + Helm-installed Operator) also still exist in the repo from an earlier, now-undocumented setup path. They're unused by both topologies above and can be removed if nothing depends on them, or revived if a real multi-member replica set is ever needed locally.
+Both use a plain MongoDB Deployment rather than the MongoDB Community Operator — no Helm/CRD bootstrap needed, which is the right tradeoff for a single, non-HA instance. An earlier setup path used the MongoDB Community Operator (`MongoDBCommunity` CRD, Helm-installed) instead; those manifests (`k8s/base/`, `k8s/mongodb/`) have since been removed as unused. Revisit that approach if a real multi-member replica set is ever needed locally.
 
 ## Security considerations
 
