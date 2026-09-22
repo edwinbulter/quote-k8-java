@@ -5,11 +5,13 @@ Users opvragen:
   - output: [{"db":"admin","name":"quote-user","passwordSecretRef":{"name":"mongodb-password"},"roles":[{"db":"quote-db","name":"readWrite"}],"scramCredentialsSecretName":"quote-user-scram"}]
 
 Wachtwoord opvragen:
-- k get secret mongodb-password -o jsonpath='{.data.password}' | base64 --decode 
-    output: ChangeThisPassword123!
+- k get secret mongodb-password -o jsonpath='{.data.password}' | base64 --decode
 
 Start mongosh-client:
--  k run mongosh-client --rm -it --image=rtsp/mongosh -- mongosh 'mongodb://quote-user:ChangeThisPassword123!@10.96.198.27:27017/quote-db?authSource=admin'
+- vraag de ClusterIP van mongodb-service op en vul die in op XXX.XXX.XXX.XXX in het volgende commando:
+  ```bash
+  k run mongosh-client --rm -it --image=rtsp/mongosh -- mongosh 'mongodb://quote-user:ChangeThisPassword123!@XXX.XXX.XXX.XXX:27017/quote-db?authSource=admin'
+  ```
 
 Query Mongo DB:
 ```bash
