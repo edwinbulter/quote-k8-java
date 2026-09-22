@@ -103,7 +103,7 @@ public async Task<User> RegisterAsync(RegisterRequest request)
 
 ### 1. Create RegisterRequest DTO
 
-Create `RegisterRequest.java` in `src/main/java/com/quote/k8/dto/`:
+Create `RegisterRequest.java` in `src/main/java/com/quote/k8s/dto/`:
 
 ```java
 package com.quote.k8.dto;
@@ -164,7 +164,7 @@ public class UserRepository implements PanacheMongoRepository<User> {
 
 ### 3. Create AuthService
 
-Create `AuthService.java` in `src/main/java/com/quote/k8/service/`:
+Create `AuthService.java` in `src/main/java/com/quote/k8s/service/`:
 
 ```java
 package com.quote.k8.service;
@@ -227,7 +227,7 @@ public class AuthService {
 
 ### 4. Create AuthResource REST Endpoint
 
-Create `AuthResource.java` in `src/main/java/com/quote/k8/resource/`:
+Create `AuthResource.java` in `src/main/java/com/quote/k8s/resource/`:
 
 ```java
 package com.quote.k8.resource;
@@ -314,7 +314,7 @@ Ensure `pom.xml` includes Hibernate Validator for Bean Validation:
 
 5. **Build and Deploy**
    ```bash
-   cd k8-quote-api
+   cd quote-api
    mvn clean package -DskipTests
    docker build -f Containerfile.jvm -t quote-api:latest-jvm .
    kind load docker-image quote-api:latest-jvm --name single-node

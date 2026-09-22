@@ -25,7 +25,7 @@ public Optional<Quote> getQuoteById(Integer quoteId) {
 }
 ```
 
-**Location**: `/k8-quote-api/src/main/java/com/quote/k8/service/QuoteService.java`
+**Location**: `/quote-api/src/main/java/com/quote/k8s/service/QuoteService.java`
 
 Add this method after the existing methods, for example after `getRandomQuote()`.
 
@@ -57,7 +57,7 @@ public Response getQuoteById(@PathParam("id") Integer id) {
 }
 ```
 
-**Location**: `/k8-quote-api/src/main/java/com/quote/k8/resource/QuoteResource.java`
+**Location**: `/quote-api/src/main/java/com/quote/k8s/resource/QuoteResource.java`
 
 Add this method at the end of the class, after all other endpoint methods.
 
@@ -73,10 +73,10 @@ Add this method at the end of the class, after all other endpoint methods.
 
 ### 1. Build the Application
 
-Navigate to the `k8-quote-api` directory and build the application:
+Navigate to the `quote-api` directory and build the application:
 
 ```bash
-cd k8-quote-api
+cd quote-api
 mvn clean package -DskipTests
 ```
 
@@ -101,8 +101,8 @@ kind load docker-image quote-api:latest-jvm --name kind-single-node
 Apply the Kubernetes manifests for local deployment:
 
 ```bash
-kubectl apply -f k8/local/deployment-jvm.yaml --context=kind-single-node
-kubectl apply -f k8/local/service-jvm.yaml --context=kind-single-node
+kubectl apply -f k8s/local/deployment-jvm.yaml --context=kind-single-node
+kubectl apply -f k8s/local/service-jvm.yaml --context=kind-single-node
 ```
 
 ### 5. Verify Deployment
@@ -214,4 +214,4 @@ INFO  [com.quot.k8.ser.QuoteService] (executor-thread-1) Getting quote by ID: 1
 - The MongoDB `_id` is stored in the `id` field but is not used for API lookups
 - This endpoint follows the same error handling pattern as other endpoints in the resource class
 - The endpoint is public (no `@Authenticated` annotation) and can be accessed without authentication
-- For cloud deployment, use the native deployment manifests in `k8/cloud/` instead of the JVM manifests
+- For cloud deployment, use the native deployment manifests in `k8s/cloud/` instead of the JVM manifests

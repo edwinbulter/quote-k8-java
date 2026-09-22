@@ -274,7 +274,7 @@ public class UserRepository implements PanacheMongoRepository<User> {
 ## 5. Build and Deploy
 
 ```bash
-cd k8-quote-api
+cd quote-api
 mvn clean package -DskipTests
 docker build -f Containerfile.jvm -t quote-api:latest-jvm .
 kind load docker-image quote-api:latest-jvm --name single-node

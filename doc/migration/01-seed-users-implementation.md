@@ -58,7 +58,7 @@ The seeder creates two users:
 
 ### 1. Create User Model
 
-Create `User.java` in `src/main/java/com/quote/k8/model/`:
+Create `User.java` in `src/main/java/com/quote/k8s/model/`:
 
 ```java
 package com.quote.k8.model;
@@ -98,7 +98,7 @@ public class User {
 
 ### 2. Create UserRole Model
 
-Create `UserRole.java` in `src/main/java/com/quote/k8/model/`:
+Create `UserRole.java` in `src/main/java/com/quote/k8s/model/`:
 
 ```java
 package com.quote.k8.model;
@@ -134,7 +134,7 @@ public class UserRole {
 
 ### 3. Create UserRepository
 
-Create `UserRepository.java` in `src/main/java/com/quote/k8/repository/`:
+Create `UserRepository.java` in `src/main/java/com/quote/k8s/repository/`:
 
 ```java
 package com.quote.k8.repository;
@@ -160,7 +160,7 @@ public class UserRepository implements PanacheMongoRepository<User> {
 
 ### 4. Create UserRoleRepository
 
-Create `UserRoleRepository.java` in `src/main/java/com/quote/k8/repository/`:
+Create `UserRoleRepository.java` in `src/main/java/com/quote/k8s/repository/`:
 
 ```java
 package com.quote.k8.repository;
@@ -186,7 +186,7 @@ public class UserRoleRepository implements PanacheMongoRepository<UserRole> {
 
 ### 5. Create Password Utility
 
-Create `PasswordUtil.java` in `src/main/java/com/quote/k8/util/`:
+Create `PasswordUtil.java` in `src/main/java/com/quote/k8s/util/`:
 
 ```java
 package com.quote.k8.util;
@@ -227,7 +227,7 @@ public class PasswordUtil {
 
 ### 6. Create UserSeeder Service
 
-Create `UserSeeder.java` in `src/main/java/com/quote/k8/service/`:
+Create `UserSeeder.java` in `src/main/java/com/quote/k8s/service/`:
 
 ```java
 package com.quote.k8.service;
@@ -309,7 +309,7 @@ public class UserSeeder {
 
 ### 7. Create SeedResource REST Endpoint
 
-Create `SeedResource.java` in `src/main/java/com/quote/k8/resource/`:
+Create `SeedResource.java` in `src/main/java/com/quote/k8s/resource/`:
 
 ```java
 package com.quote.k8.resource;
@@ -369,7 +369,7 @@ public class SeedResource {
 
 6. **Build and Deploy**
    ```bash
-   cd k8-quote-api
+   cd quote-api
    mvn clean package -DskipTests
    docker build -f Containerfile.jvm -t quote-api:latest-jvm .
    kind load docker-image quote-api:latest-jvm --name single-node

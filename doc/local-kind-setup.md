@@ -9,7 +9,7 @@ This guide uses a plain `mongo:7.0` Deployment (no Helm/operator bootstrap neede
 - Docker
 - A kind cluster named `single-node` already running, with kubectl context `kind-single-node`
 - kubectl
-- Java 17+ and the Maven wrapper (`k8-quote-api/mvnw`)
+- Java 17+ and the Maven wrapper (`quote-api/mvnw`)
 - Node.js and npm
 
 Verify the cluster is up:
@@ -21,11 +21,11 @@ kubectl config get-contexts kind-single-node
 
 ## Step 1: Create the JWT signing key
 
-The backend won't start without `k8-quote-api/src/main/resources/sign-key.jwk` (see `doc/smallrye-sign-key.md`). It's gitignored and must be created once per checkout, **before** building the backend image:
+The backend won't start without `quote-api/src/main/resources/sign-key.jwk` (see `doc/smallrye-sign-key.md`). It's gitignored and must be created once per checkout, **before** building the backend image:
 
 ```bash
 KEY=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
-cat > k8-quote-api/src/main/resources/sign-key.jwk <<EOF
+cat > quote-api/src/main/resources/sign-key.jwk <<EOF
 {"keys":[{"kty":"oct","kid":"quote-k8-key","k":"$KEY"}]}
 EOF
 ```
@@ -37,7 +37,7 @@ Skip this if the file already exists.
 ### Backend
 
 ```bash
-cd k8-quote-api
+cd quote-api
 ./mvnw clean package -DskipTests
 docker build -f Containerfile.jvm -t quote-api:latest-jvm .
 kind load docker-image quote-api:latest-jvm --name single-node
@@ -47,7 +47,7 @@ cd ..
 ### Frontend
 
 ```bash
-cd k8-quote-frontend
+cd quote-frontend
 npm install
 npm run build
 docker build -t quote-frontend:latest .
@@ -66,7 +66,7 @@ No `--platform` flag is needed — the kind node runs on the same architecture a
 This script:
 - Verifies the `single-node` kind cluster exists
 - Installs the NGINX ingress controller if it isn't already present
-- Applies the `quote-k8-java` namespace, MongoDB (Deployment + PVC + Service + Secret), and the backend/frontend Deployments, Services, and Ingress (`k8/local/`)
+- Applies the `quote-k8-java` namespace, MongoDB (Deployment + PVC + Service + Secret), and the backend/frontend Deployments, Services, and Ingress (`k8s/local/`)
 - Waits for all three Deployments to become ready
 - Seeds the `admin`/`user-1` accounts by calling `POST /api/seed-users` (safe to run repeatedly — it skips users that already exist)
 

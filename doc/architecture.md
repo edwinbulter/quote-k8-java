@@ -12,15 +12,15 @@ flowchart TD
     Backend -->|"mongodb://"| Mongo["MongoDB<br/>(plain Deployment or Operator CRD)"]
 ```
 
-- **`k8-quote-frontend/`** — React + TypeScript SPA (Vite build), served as static files by nginx in production. `nginx.conf` proxies `/api/*` to `quote-api-service` internally so the SPA and API appear same-origin to the browser. In dev, `vite.config.ts` proxies `/api` to `http://localhost:8080` instead.
-- **`k8-quote-api/`** — Quarkus (Java 17) REST API. Talks to MongoDB via `quarkus-mongodb-panache`, issues/verifies JWTs via `quarkus-smallrye-jwt`, exposes health checks via `quarkus-smallrye-health`. Built either as a JVM image (`Containerfile.jvm`) or a native GraalVM image (`Containerfile.native`) — see "Build variants" below.
+- **`quote-frontend/`** — React + TypeScript SPA (Vite build), served as static files by nginx in production. `nginx.conf` proxies `/api/*` to `quote-api-service` internally so the SPA and API appear same-origin to the browser. In dev, `vite.config.ts` proxies `/api` to `http://localhost:8080` instead.
+- **`quote-api/`** — Quarkus (Java 17) REST API. Talks to MongoDB via `quarkus-mongodb-panache`, issues/verifies JWTs via `quarkus-smallrye-jwt`, exposes health checks via `quarkus-smallrye-health`. Built either as a JVM image (`Containerfile.jvm`) or a native GraalVM image (`Containerfile.native`) — see "Build variants" below.
 - **MongoDB** — single instance holding all application data. No caching layer, no message queue, no other backing services.
 - **ingress-nginx** — routes `/` to the frontend Service and `/api` to the backend Service; not part of the application, installed once per cluster.
 
 ## Request flow
 
 1. Browser loads the SPA from `quote-frontend-service` (via Ingress or, for Scaleway, TLS-terminated at the Ingress).
-2. SPA calls `/api/...` (relative path — see `k8-quote-frontend/src/constants/constants.tsx`, `BASE_URL` defaults to `/api`). These requests hit the same Ingress, which routes `/api` to `quote-api-service`.
+2. SPA calls `/api/...` (relative path — see `quote-frontend/src/constants/constants.tsx`, `BASE_URL` defaults to `/api`). These requests hit the same Ingress, which routes `/api` to `quote-api-service`.
 3. The backend authenticates requests carrying `Authorization: Bearer <jwt>` and reads/writes MongoDB via the `mongodb-service` ClusterIP DNS name (`mongodb://quote-user:...@mongodb-service:27017/quote-db?authSource=admin`) — the same connection string works in every environment because the Service name never changes, only what backs it does.
 
 ## Data model (MongoDB collections)
@@ -74,18 +74,18 @@ All routes are under `/api`. Auth style: `@Authenticated` (any valid JWT) or `@R
 Two backend build targets exist for different deployment shapes:
 
 - **JVM** (`Containerfile.jvm`) — fast to build, used for local/kind development where iteration speed matters more than image size or cold-start time.
-- **Native** (`Containerfile.native`, GraalVM) — small image, near-instant cold start, used for cloud deployments where resource efficiency matters (`k8/cloud/deployment-native.yaml`).
+- **Native** (`Containerfile.native`, GraalVM) — small image, near-instant cold start, used for cloud deployments where resource efficiency matters (`k8s/cloud/deployment-native.yaml`).
 
-The frontend has one build path: `npm run build` (Vite) → static files served by nginx (`k8-quote-frontend/Dockerfile`); it's identical across environments.
+The frontend has one build path: `npm run build` (Vite) → static files served by nginx (`quote-frontend/Dockerfile`); it's identical across environments.
 
 ## Deployment topologies
 
-The same components are assembled two different ways today, driven entirely by which `k8/` manifests are applied — application code doesn't change.
+The same components are assembled two different ways today, driven entirely by which `k8s/` manifests are applied — application code doesn't change.
 
 | | Quick kind setup | Scaleway |
 |---|---|---|
 | Doc | `local-kind-setup.md` | `scaleway-deployment-guide.md` |
-| Manifests | `k8/local/` (+ `k8/local/mongodb/`) | `k8/scaleway/` |
+| Manifests | `k8s/local/` (+ `k8s/local/mongodb/`) | `k8s/scaleway/` |
 | Namespace | `quote-k8-java` | `scaleway-quote-k8` |
 | Backend image | JVM, local-only, `imagePullPolicy: Never` | JVM, pulled from `ghcr.io` |
 | MongoDB | plain `mongo:7.0` Deployment + PVC | plain `mongo:7.0` Deployment + PVC |
@@ -94,7 +94,7 @@ The same components are assembled two different ways today, driven entirely by w
 
 Both use a plain MongoDB Deployment rather than the MongoDB Community Operator — no Helm/CRD bootstrap needed, which is the right tradeoff for a single, non-HA instance (see "why not the operator" note below).
 
-`k8/base/` and `k8/mongodb/` (a `MongoDBCommunity` CRD + Helm-installed Operator) also still exist in the repo from an earlier, now-undocumented setup path. They're unused by both topologies above and can be removed if nothing depends on them, or revived if a real multi-member replica set is ever needed locally.
+`k8s/base/` and `k8s/mongodb/` (a `MongoDBCommunity` CRD + Helm-installed Operator) also still exist in the repo from an earlier, now-undocumented setup path. They're unused by both topologies above and can be removed if nothing depends on them, or revived if a real multi-member replica set is ever needed locally.
 
 ## Security considerations
 

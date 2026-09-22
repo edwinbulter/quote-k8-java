@@ -123,9 +123,9 @@ fi
 
 # Download kubeconfig
 echo "Downloading kubeconfig..."
-mkdir -p k8/scaleway
-scw k8s kubeconfig get "$CLUSTER_ID" region="$REGION" > k8/scaleway/kubeconfig
-KUBECONFIG_FILE=$(pwd)/k8/scaleway/kubeconfig
+mkdir -p k8s/scaleway
+scw k8s kubeconfig get "$CLUSTER_ID" region="$REGION" > k8s/scaleway/kubeconfig
+KUBECONFIG_FILE=$(pwd)/k8s/scaleway/kubeconfig
 export KUBECONFIG="$KUBECONFIG_FILE"
 echo "✓ Kubeconfig downloaded to: $KUBECONFIG_FILE"
 echo ""
@@ -148,13 +148,13 @@ echo ""
 
 # Create namespace
 echo "Creating namespace: $NAMESPACE"
-kubectl apply -f k8/scaleway/namespace.yaml
+kubectl apply -f k8s/scaleway/namespace.yaml
 echo "✓ Namespace created"
 echo ""
 
 # Create secrets
 echo "Creating secrets..."
-kubectl apply -f k8/scaleway/secret.yaml
+kubectl apply -f k8s/scaleway/secret.yaml
 
 # Create GitHub Container Registry secret
 kubectl create secret docker-registry ghcr-secret \
@@ -167,31 +167,31 @@ echo ""
 
 # Create ConfigMap
 echo "Creating ConfigMap..."
-kubectl apply -f k8/scaleway/configmap.yaml
+kubectl apply -f k8s/scaleway/configmap.yaml
 echo "✓ ConfigMap created"
 echo ""
 
 # Deploy MongoDB
 echo "Deploying MongoDB..."
-kubectl apply -f k8/scaleway/mongodb/pvc.yaml
-kubectl apply -f k8/scaleway/mongodb/deployment.yaml
-kubectl apply -f k8/scaleway/mongodb/service.yaml
+kubectl apply -f k8s/scaleway/mongodb/pvc.yaml
+kubectl apply -f k8s/scaleway/mongodb/deployment.yaml
+kubectl apply -f k8s/scaleway/mongodb/service.yaml
 echo "✓ MongoDB deployed"
 echo ""
 
 # Deploy backend
 echo "Deploying backend..."
 sed "s|ghcr.io/YOUR_USERNAME/quote-api:latest-jvm|ghcr.io/$GITHUB_USERNAME/quote-api:latest-jvm|g" \
-    k8/scaleway/backend/deployment.yaml | kubectl apply -f -
-kubectl apply -f k8/scaleway/backend/service.yaml
+    k8s/scaleway/backend/deployment.yaml | kubectl apply -f -
+kubectl apply -f k8s/scaleway/backend/service.yaml
 echo "✓ Backend deployed"
 echo ""
 
 # Deploy frontend
 echo "Deploying frontend..."
 sed "s|ghcr.io/YOUR_USERNAME/quote-frontend:latest|ghcr.io/$GITHUB_USERNAME/quote-frontend:latest|g" \
-    k8/scaleway/frontend/deployment.yaml | kubectl apply -f -
-kubectl apply -f k8/scaleway/frontend/service.yaml
+    k8s/scaleway/frontend/deployment.yaml | kubectl apply -f -
+kubectl apply -f k8s/scaleway/frontend/service.yaml
 echo "✓ Frontend deployed"
 echo ""
 
@@ -278,7 +278,7 @@ echo ""
 
 # Update ingress with domain
 echo "Configuring ingress with domain: $DOMAIN"
-sed "s|YOUR_DOMAIN.COM|$DOMAIN|g" k8/scaleway/ingress/ingress.yaml | kubectl apply -f -
+sed "s|YOUR_DOMAIN.COM|$DOMAIN|g" k8s/scaleway/ingress/ingress.yaml | kubectl apply -f -
 echo "✓ Ingress configured"
 echo ""
 

@@ -16,9 +16,9 @@ This project was created with the following goals:
 
 ## Project Structure
 
-- `k8-quote-api/` - Quarkus-based Java backend API
-- `k8-quote-frontend/` - Frontend application
-- `k8/` - Kubernetes manifests and configuration
+- `quote-api/` - Quarkus-based Java backend API
+- `quote-frontend/` - Frontend application
+- `k8s/` - Kubernetes manifests and configuration
 - `scripts/` - Deployment and setup scripts
 - `doc/` - Documentation
 

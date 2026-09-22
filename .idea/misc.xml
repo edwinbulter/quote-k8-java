@@ -4,7 +4,7 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/k8-quote-api/pom.xml" />
+        <option value="$PROJECT_DIR$/quote-api/pom.xml" />
       </list>
     </option>
   </component>

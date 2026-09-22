@@ -59,7 +59,7 @@ source ~/.bashrc
 ### 2. Build and Push Backend Image
 
 ```bash
-cd k8-quote-api
+cd quote-api
 mvn clean package -DskipTests
 podman build --platform linux/amd64 -f Containerfile.jvm -t ghcr.io/YOUR_USERNAME/quote-api:latest-jvm .
 podman login ghcr.io -u YOUR_USERNAME -p YOUR_TOKEN
@@ -71,7 +71,7 @@ podman push ghcr.io/YOUR_USERNAME/quote-api:latest-jvm
 The frontend already has a Dockerfile that expects the dist directory to be built locally:
 
 ```bash
-cd k8-quote-frontend
+cd quote-frontend
 npm run build
 podman build --platform linux/amd64 -t ghcr.io/edwinbulter/quote-frontend:latest .
 podman login ghcr.io -u edwinbulter -p YOUR_TOKEN

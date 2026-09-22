@@ -151,7 +151,7 @@ smallrye.jwt.time-to-live=3600
 
 ### 3. Create LoginRequest DTO
 
-Create `LoginRequest.java` in `src/main/java/com/quote/k8/dto/`:
+Create `LoginRequest.java` in `src/main/java/com/quote/k8s/dto/`:
 
 ```java
 package com.quote.k8.dto;
@@ -170,7 +170,7 @@ public class LoginRequest {
 
 ### 4. Create LoginResponse DTO
 
-Create `LoginResponse.java` in `src/main/java/com/quote/k8/dto/`:
+Create `LoginResponse.java` in `src/main/java/com/quote/k8s/dto/`:
 
 ```java
 package com.quote.k8.dto;
@@ -187,7 +187,7 @@ public class LoginResponse {
 
 ### 5. Create JwtService
 
-Create `JwtService.java` in `src/main/java/com/quote/k8/service/`:
+Create `JwtService.java` in `src/main/java/com/quote/k8s/service/`:
 
 ```java
 package com.quote.k8.service;
@@ -361,7 +361,7 @@ public Response login(@Valid LoginRequest request) {
 
 8. **Build and Deploy**
    ```bash
-   cd k8-quote-api
+   cd quote-api
    mvn clean package -DskipTests
    docker build -f Containerfile.jvm -t quote-api:latest-jvm .
    kind load docker-image quote-api:latest-jvm --name single-node

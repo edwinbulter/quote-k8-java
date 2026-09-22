@@ -6,7 +6,7 @@ set -e
 NAMESPACE="scaleway-quote-k8"
 CLUSTER_NAME="${CLUSTER_NAME:-quote-k8-java-cluster}"
 REGION="${REGION:-fr-par}"
-KUBECONFIG_FILE="$(dirname "$0")/../k8/scaleway/kubeconfig"
+KUBECONFIG_FILE="$(dirname "$0")/../k8s/scaleway/kubeconfig"
 export KUBECONFIG="$KUBECONFIG_FILE"
 
 echo "=========================================="
@@ -45,7 +45,7 @@ fi
 
 echo ""
 echo "Deleting ingress..."
-kubectl delete -f k8/scaleway/ingress/ingress.yaml --ignore-not-found=true
+kubectl delete -f k8s/scaleway/ingress/ingress.yaml --ignore-not-found=true
 echo "✓ Ingress deleted"
 echo ""
 

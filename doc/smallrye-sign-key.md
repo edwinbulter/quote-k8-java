@@ -2,7 +2,7 @@
 
 ## JWT Signing Key (`sign-key.jwk`)
 
-The file `k8-quote-api/src/main/resources/sign-key.jwk` is a **required runtime resource**. It contains the HMAC secret key (in JWK format) used to sign every JWT token issued by the login endpoint.
+The file `quote-api/src/main/resources/sign-key.jwk` is a **required runtime resource**. It contains the HMAC secret key (in JWK format) used to sign every JWT token issued by the login endpoint.
 
 ### Why it exists
 
@@ -27,7 +27,7 @@ Generate a random 256-bit HMAC key, base64url-encode it (no padding), and wrap i
 
 ```bash
 KEY=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
-cat > k8-quote-api/src/main/resources/sign-key.jwk <<EOF
+cat > quote-api/src/main/resources/sign-key.jwk <<EOF
 {"keys":[{"kty":"oct","kid":"quote-k8-key","k":"$KEY"}]}
 EOF
 ```

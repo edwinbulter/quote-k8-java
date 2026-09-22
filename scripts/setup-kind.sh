@@ -40,19 +40,19 @@ echo ""
 
 # Create namespace and MongoDB
 echo "Applying namespace and MongoDB resources..."
-kubectl apply --context="$CONTEXT" -f k8/local/namespace.yaml
-kubectl apply --context="$CONTEXT" -f k8/local/mongodb/
+kubectl apply --context="$CONTEXT" -f k8s/local/namespace.yaml
+kubectl apply --context="$CONTEXT" -f k8s/local/mongodb/
 echo "✓ Namespace and MongoDB resources applied"
 echo ""
 
 # Deploy backend and frontend
 echo "Applying backend, frontend, and ingress resources..."
 kubectl apply --context="$CONTEXT" \
-    -f k8/local/deployment-jvm.yaml \
-    -f k8/local/service-jvm.yaml \
-    -f k8/local/deployment-frontend.yaml \
-    -f k8/local/service-frontend.yaml \
-    -f k8/local/ingress.yaml
+    -f k8s/local/deployment-jvm.yaml \
+    -f k8s/local/service-jvm.yaml \
+    -f k8s/local/deployment-frontend.yaml \
+    -f k8s/local/service-frontend.yaml \
+    -f k8s/local/ingress.yaml
 echo "✓ Backend, frontend, and ingress resources applied"
 echo ""
 
