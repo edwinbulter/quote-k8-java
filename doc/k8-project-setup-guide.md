@@ -9,12 +9,12 @@ This guide describes how to create a base Kubernetes project that can be deploye
 - **Database:** MongoDB with MongoDB Operator
 - **Local Runtime:** Quarkus JVM in Kind K8 cluster
 - **Cloud Runtime:** Quarkus Native (GraalVM)
-- **K8 Context:** `kind-multi-node-cluster` (already running)
+- **K8 Context:** `kind-single-node` (already running)
 - **Namespace:** `quote-k8-java`
 
 ## Prerequisites
 
-- Kind K8 cluster running with context `kind-multi-node-cluster`
+- Kind K8 cluster running with context `kind-single-node`
 - kubectl configured to use the Kind cluster
 - Java 17+ installed
 - Maven 3.8+ installed
@@ -71,13 +71,13 @@ quote-k8-java/
 Create the namespace `quote-k8-java` in your Kind cluster:
 
 ```bash
-kubectl create namespace quote-k8-java --context=kind-multi-node-cluster
+kubectl create namespace quote-k8-java --context=kind-single-node
 ```
 
 Verify the namespace was created:
 
 ```bash
-kubectl get namespaces --context=kind-multi-node-cluster
+kubectl get namespaces --context=kind-single-node
 ```
 
 ## Step 2: Install MongoDB Operator using Helm
@@ -123,7 +123,7 @@ helm install mongodb-operator mongodb/community-operator \
 
 ```bash
 # Verify the operator is running
-kubectl get pods -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get pods -n quote-k8-java --context=kind-single-node
 ```
 
 ### 2.4 Create MongoDB Cluster
@@ -178,14 +178,14 @@ spec:
 Apply the MongoDB configuration:
 
 ```bash
-kubectl apply -f k8/mongodb/mongodb-cluster.yaml --context=kind-multi-node-cluster
+kubectl apply -f k8/mongodb/mongodb-cluster.yaml --context=kind-single-node
 ```
 
 Verify MongoDB is running:
 
 ```bash
-kubectl get pods -n quote-k8-java --context=kind-multi-node-cluster
-kubectl get mongodbcommunity -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get pods -n quote-k8-java --context=kind-single-node
+kubectl get mongodbcommunity -n quote-k8-java --context=kind-single-node
 ```
 
 ## Step 3: Create Quarkus Project
@@ -849,39 +849,39 @@ docker build --platform linux/arm64 -f Containerfile.jvm -t quote-api:latest-jvm
 ```
 
 ```bash
-kind load docker-image quote-api:latest-jvm --name multi-node-cluster
+kind load docker-image quote-api:latest-jvm --name single-node
 ```
 
 ### 12.2 Deploy to Kind
 
 ```bash
 # Apply Kubernetes resources
-kubectl apply -f k8/base/configmap.yaml --context=kind-multi-node-cluster
-kubectl apply -f k8/local/deployment-jvm.yaml --context=kind-multi-node-cluster
-kubectl apply -f k8/local/service-jvm.yaml --context=kind-multi-node-cluster
+kubectl apply -f k8/base/configmap.yaml --context=kind-single-node
+kubectl apply -f k8/local/deployment-jvm.yaml --context=kind-single-node
+kubectl apply -f k8/local/service-jvm.yaml --context=kind-single-node
 ```
 
 ### 12.3 Verify Deployment
 
 ```bash
 # Check pods
-kubectl get pods -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get pods -n quote-k8-java --context=kind-single-node
 
 # Check service
-kubectl get svc -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get svc -n quote-k8-java --context=kind-single-node
 
 # Get service URL
-kubectl get svc quote-api-service -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get svc quote-api-service -n quote-k8-java --context=kind-single-node
 
 # View logs
-kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-multi-node-cluster -f
+kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-single-node -f
 ```
 
 ### 12.4 Test the API
 
 ```bash
 # Port forward to test locally
-kubectl port-forward svc/quote-api-service 8080:80 -n quote-k8-java --context=kind-multi-node-cluster
+kubectl port-forward svc/quote-api-service 8080:80 -n quote-k8-java --context=kind-single-node
 
 # Test the endpoint
 curl http://localhost:8080/api/quotes/random
@@ -969,7 +969,7 @@ Content-Type: application/json
 
 ```bash
 # For Kind deployment
-kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-multi-node-cluster -f
+kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-single-node -f
 
 # For cloud deployment
 kubectl logs -l app=quote-api,mode=native -n quote-k8-java -f
@@ -1047,7 +1047,7 @@ kubectl describe pod <pod-name> -n quote-k8-java
 
 ```bash
 # For Kind, ensure image is loaded
-podman save quote-api:latest-jvm | kind load image-archive - --name kind-multi-node-cluster
+podman save quote-api:latest-jvm | kind load image-archive - --name kind-single-node
 
 # For cloud, ensure registry credentials are set up
 kubectl create secret docker-registry regcred \

@@ -74,7 +74,7 @@ docker build -t quote-frontend:latest .
 
 ### 7. Load Image into Kind Cluster
 ```bash
-kind load docker-image quote-frontend:latest --name multi-node-cluster
+kind load docker-image quote-frontend:latest --name single-node
 ```
 
 ### 8. Apply Kubernetes Manifests

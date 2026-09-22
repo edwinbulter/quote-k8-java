@@ -364,7 +364,7 @@ public Response login(@Valid LoginRequest request) {
    cd k8-quote-api
    mvn clean package -DskipTests
    docker build -f Containerfile.jvm -t quote-api:latest-jvm .
-   kind load docker-image quote-api:latest-jvm --name multi-node-cluster
+   kind load docker-image quote-api:latest-jvm --name single-node
    kubectl rollout restart deployment/quote-api-jvm -n quote-k8-java
    ```
 

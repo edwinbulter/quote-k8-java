@@ -93,7 +93,7 @@ podman build -f Containerfile.jvm -t quote-api:latest-jvm .
 Load the image into your Kind cluster:
 
 ```bash
-kind load docker-image quote-api:latest-jvm --name kind-multi-node-cluster
+kind load docker-image quote-api:latest-jvm --name kind-single-node
 ```
 
 ### 4. Deploy to Kind
@@ -101,8 +101,8 @@ kind load docker-image quote-api:latest-jvm --name kind-multi-node-cluster
 Apply the Kubernetes manifests for local deployment:
 
 ```bash
-kubectl apply -f k8/local/deployment-jvm.yaml --context=kind-multi-node-cluster
-kubectl apply -f k8/local/service-jvm.yaml --context=kind-multi-node-cluster
+kubectl apply -f k8/local/deployment-jvm.yaml --context=kind-single-node
+kubectl apply -f k8/local/service-jvm.yaml --context=kind-single-node
 ```
 
 ### 5. Verify Deployment
@@ -111,13 +111,13 @@ Check that the deployment is successful:
 
 ```bash
 # Check pods
-kubectl get pods -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get pods -n quote-k8-java --context=kind-single-node
 
 # Check service
-kubectl get svc -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get svc -n quote-k8-java --context=kind-single-node
 
 # View logs
-kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-multi-node-cluster -f
+kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-single-node -f
 ```
 
 ### 6. Get Service URL
@@ -126,10 +126,10 @@ Get the external IP or port to access the service:
 
 ```bash
 # For Kind, get the node port
-kubectl get svc quote-api-service -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get svc quote-api-service -n quote-k8-java --context=kind-single-node
 
 # Or port-forward for local testing
-kubectl port-forward svc/quote-api-service 8080:80 -n quote-k8-java --context=kind-multi-node-cluster
+kubectl port-forward svc/quote-api-service 8080:80 -n quote-k8-java --context=kind-single-node
 ```
 
 The service will be available at `http://localhost:8080` when using port-forward.
@@ -186,7 +186,7 @@ Test the endpoint in the Kind cluster context:
 
 ```bash
 # Get the service endpoint
-kubectl get svc quote-api-service -n quote-k8-java --context=kind-multi-node-cluster
+kubectl get svc quote-api-service -n quote-k8-java --context=kind-single-node
 
 # Test using the service name from within the cluster
 kubectl run test-pod --image=curlimages/curl -i --rm --restart=Never -- \
@@ -198,7 +198,7 @@ kubectl run test-pod --image=curlimages/curl -i --rm --restart=Never -- \
 Check the application logs to verify the endpoint is working:
 
 ```bash
-kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-multi-node-cluster
+kubectl logs -l app=quote-api,mode=jvm -n quote-k8-java --context=kind-single-node
 ```
 
 You should see log entries like:

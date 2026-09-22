@@ -17,7 +17,7 @@ podman build -f Containerfile.jvm -t quote-api:latest-jvm .
 Avoid Mac podman/kind cache problem:
 ```bash
 podman save -o quote-api.tar localhost/quote-api:latest-jvm
-kind load image-archive quote-api.tar --name multi-node-cluster
+kind load image-archive quote-api.tar --name single-node
 rm quote-api.tar
 k rollout restart deployment/quote-api-jvm
 ```
