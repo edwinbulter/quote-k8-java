@@ -68,6 +68,7 @@ This script:
 - Installs the NGINX ingress controller if it isn't already present
 - Applies the `quote-k8-java` namespace, MongoDB (Deployment + PVC + Service + Secret), and the backend/frontend Deployments, Services, and Ingress (`k8/local/`)
 - Waits for all three Deployments to become ready
+- Seeds the `admin`/`user-1` accounts by calling `POST /api/seed-users` (safe to run repeatedly — it skips users that already exist)
 
 Check progress at any time with:
 
@@ -82,6 +83,13 @@ curl http://localhost/api/quotes/random
 ```
 
 Or open `http://localhost/` in a browser. Port 80 on the kind node is already mapped to `localhost` on the host, so no port-forwarding is needed.
+
+Log in with one of the accounts seeded in Step 3 (`loginIdentifier` accepts either username or email):
+
+| Username | Password | Role |
+|---|---|---|
+| `admin` | `Admin123!` | ADMIN |
+| `user-1` | `Hello-user-1` | USER |
 
 ## Step 5: Remove everything
 

@@ -63,6 +63,24 @@ kubectl rollout status deployment/quote-api-jvm -n "$NAMESPACE" --context="$CONT
 kubectl rollout status deployment/quote-frontend -n "$NAMESPACE" --context="$CONTEXT" --timeout=120s
 echo ""
 
+# Seed the admin/user-1 accounts (safe to call repeatedly - the seeder skips users that already exist)
+echo "Seeding admin/user-1 accounts..."
+SEED_OK=false
+for i in $(seq 1 10); do
+    if curl -sf -X POST http://localhost/api/seed-users > /dev/null; then
+        SEED_OK=true
+        break
+    fi
+    sleep 2
+done
+if [ "$SEED_OK" = true ]; then
+    echo "✓ Users seeded (admin/Admin123!, user-1/Hello-user-1)"
+else
+    echo "WARNING: could not reach http://localhost/api/seed-users - seed manually with:"
+    echo "  curl -X POST http://localhost/api/seed-users"
+fi
+echo ""
+
 echo "=========================================="
 echo "✓ Setup complete"
 echo "=========================================="
@@ -71,3 +89,4 @@ kubectl get pods -n "$NAMESPACE" --context="$CONTEXT"
 echo ""
 echo "Frontend: http://localhost/"
 echo "API:      http://localhost/api/quotes/random"
+echo "Login:    admin / Admin123!  (or user-1 / Hello-user-1)"
