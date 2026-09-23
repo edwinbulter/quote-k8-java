@@ -19,13 +19,13 @@ async function getAuthHeaders(): Promise<HeadersInit> {
 }
 
 export interface UserInfo {
-    Username: string;
-    Email: string;
-    Roles: string[];
-    Enabled: boolean;
-    UserStatus: string;
-    UserCreateDate?: string;
-    UserLastModifiedDate?: string;
+    username: string;
+    email: string;
+    roles: string[];
+    enabled: boolean;
+    userStatus: string;
+    userCreateDate?: string;
+    userLastModifiedDate?: string;
 }
 
 export interface QuoteWithLikeCount {

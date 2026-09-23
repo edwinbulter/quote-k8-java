@@ -58,11 +58,11 @@ export function UserManagementScreen({ onBack }: UserManagementScreenProps) {
         const previousUsers = [...users];
         
         const updatedUsers = users.map(u => {
-            if (u.Username === username) {
+            if (u.username === username) {
                 const newRoles = currentlyInGroup
-                    ? u.Roles.filter((r: string) => r !== groupName)
-                    : [...u.Roles, groupName];
-                return { ...u, Roles: newRoles };
+                    ? u.roles.filter((r: string) => r !== groupName)
+                    : [...u.roles, groupName];
+                return { ...u, roles: newRoles };
             }
             return u;
         });
@@ -84,11 +84,11 @@ export function UserManagementScreen({ onBack }: UserManagementScreenProps) {
     };
 
     const handleDeleteUser = (username: string) => {
-        const userToDelete = users.find(u => u.Username === username);
+        const userToDelete = users.find(u => u.username === username);
         if (!userToDelete) return;
 
         const confirmed = window.confirm(
-            `Are you sure you want to delete user "${username}" (${userToDelete.Email})?\n\nThis action cannot be undone.\n\nAll user data including likes and view history will be permanently deleted.`
+            `Are you sure you want to delete user "${username}" (${userToDelete.email})?\n\nThis action cannot be undone.\n\nAll user data including likes and view history will be permanently deleted.`
         );
 
         if (!confirmed) return;
@@ -98,9 +98,9 @@ export function UserManagementScreen({ onBack }: UserManagementScreenProps) {
 
     const deleteUserWithCleanup = async (username: string) => {
         const previousUsers = [...users];
-        
+
         // Optimistic update - remove user from list
-        const updatedUsers = users.filter(u => u.Username !== username);
+        const updatedUsers = users.filter(u => u.username !== username);
         setUsers(updatedUsers);
 
         try {
@@ -145,24 +145,24 @@ export function UserManagementScreen({ onBack }: UserManagementScreenProps) {
                         </thead>
                         <tbody>
                             {users.map((userInfo) => {
-                                const roles = userInfo.Roles || [];
+                                const roles = userInfo.roles || [];
                                 const isUser = roles.includes('USER');
                                 const isAdmin = roles.includes('ADMIN');
-                                const isSelf = userInfo.Username === currentUsername;
+                                const isSelf = userInfo.username === currentUsername;
 
                                 return (
-                                    <tr key={userInfo.Username}>
+                                    <tr key={userInfo.username}>
                                         <td className="username-cell">
-                                            {userInfo.Username}
+                                            {userInfo.username}
                                             {isSelf && <span className="self-badge"> (You)</span>}
                                         </td>
-                                        <td className="email-cell">{userInfo.Email}</td>
+                                        <td className="email-cell">{userInfo.email}</td>
                                         <td className="role-cell">
                                             <label className="role-toggle">
                                                 <input
                                                     type="checkbox"
                                                     checked={isUser}
-                                                    onChange={() => handleToggleRole(userInfo.Username, 'USER', isUser)}
+                                                    onChange={() => handleToggleRole(userInfo.username, 'USER', isUser)}
                                                 />
                                                 <span className="toggle-label">
                                                     {isUser ? '✓ USER' : 'Add USER'}
@@ -174,7 +174,7 @@ export function UserManagementScreen({ onBack }: UserManagementScreenProps) {
                                                 <input
                                                     type="checkbox"
                                                     checked={isAdmin}
-                                                    onChange={() => handleToggleRole(userInfo.Username, 'ADMIN', isAdmin)}
+                                                    onChange={() => handleToggleRole(userInfo.username, 'ADMIN', isAdmin)}
                                                     disabled={isSelf && isAdmin}
                                                     title={isSelf && isAdmin ? 'Cannot remove yourself from ADMIN' : ''}
                                                 />
@@ -186,7 +186,7 @@ export function UserManagementScreen({ onBack }: UserManagementScreenProps) {
                                         <td className="actions-cell">
                                             <button
                                                 className="delete-button"
-                                                onClick={() => handleDeleteUser(userInfo.Username)}
+                                                onClick={() => handleDeleteUser(userInfo.username)}
                                                 disabled={isSelf}
                                                 title={isSelf ? 'Cannot delete yourself' : 'Delete user'}
                                             >
